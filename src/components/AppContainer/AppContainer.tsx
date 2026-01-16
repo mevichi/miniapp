@@ -7,6 +7,7 @@ import { useApp } from '@/context/AppContext';
 import { Navigation } from '@/components/Navigation/Navigation';
 import { HomePage } from '@/components/HomePage/HomePage';
 import { TasksPage } from '@/components/TasksPage/TasksPage';
+import { WheelPage } from '@/components/WheelPage/WheelPage';
 import { WalletPage } from '@/components/WalletPage/WalletPage';
 import { ProfilePage } from '@/components/ProfilePage/ProfilePage';
 import styles from './AppContainer.module.css';
@@ -62,9 +63,7 @@ export function AppContainer() {
       case 'tasks':
         return <TasksPage />;
       case 'wheel':
-        // The wheel page is a special case - it uses the existing page component
-        // For now, we'll navigate to it
-        return <div className={styles.wheelContainer}>{/* Wheel content handled by existing page */}</div>;
+        return <WheelPage />;
       case 'wallet':
         return <WalletPage />;
       case 'profile':
