@@ -1,8 +1,12 @@
 .wheelContainer {
-  padding: 20px;
-  max-width: 600px;
+  padding: 16px;
+  max-width: 100%;
   margin: 0 auto 80px;
   animation: slideUp 0.6s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
 }
 
 @keyframes slideUp {
@@ -18,66 +22,74 @@
 
 .header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
+  width: 100%;
 }
 
 .header h1 {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: bold;
-  color: #fff;
-  margin: 0 0 10px 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #1e3a8a;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .subtitle {
-  color: #b8a6e5;
-  font-size: 14px;
+  color: #64748b;
+  font-size: 13px;
   margin: 0;
+  font-weight: 500;
 }
 
 .stats {
   display: flex;
-  gap: 15px;
-  margin-bottom: 40px;
+  gap: 12px;
+  margin-bottom: 32px;
   justify-content: center;
+  width: 100%;
 }
 
 .stat {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(102, 126, 234, 0.1);
-  border: 2px solid #667eea;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(96, 165, 250, 0.08) 100%);
+  border: 2px solid #dbeafe;
   border-radius: 12px;
-  padding: 15px 25px;
-  min-width: 120px;
+  padding: 14px 22px;
+  min-width: 110px;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
 }
 
 .stat .label {
-  font-size: 12px;
-  color: #b8a6e5;
+  font-size: 11px;
+  color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
   font-weight: 600;
 }
 
 .stat .value {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: bold;
-  color: #ffd700;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+  color: #3b82f6;
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.15);
 }
 
 .wheelWrapper {
   position: relative;
-  width: 320px;
-  height: 320px;
-  margin: 0 auto 40px;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1;
+  margin: 0 auto 32px;
   perspective: 1000px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .wheel {
@@ -86,9 +98,9 @@
   border-radius: 50%;
   position: relative;
   transition: transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3),
-    inset 0 0 20px rgba(0, 0, 0, 0.2);
-  border: 8px solid #764ba2;
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.25),
+    inset 0 0 20px rgba(59, 130, 246, 0.1);
+  border: 6px solid #60a5fa;
 }
 
 .segment {
@@ -101,7 +113,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #fff;
+  border: 2px solid #f0f9ff;
   clip-path: polygon(0 0, 100% 0, 0 100%);
   opacity: 0.9;
   transition: opacity 0.3s ease;
@@ -114,25 +126,25 @@
 .segmentLabel {
   position: absolute;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 16px;
   color: #fff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  transform: rotate(45deg) translateY(-45px);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: rotate(45deg) translateY(-42px);
   white-space: nowrap;
 }
 
 .pointer {
   position: absolute;
-  top: -15px;
+  top: -12px;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-top: 25px solid #ffd700;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 20px solid #3b82f6;
   z-index: 10;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
   animation: pointerBounce 0.6s ease-in-out infinite;
 }
 
@@ -142,30 +154,31 @@
     transform: translateX(-50%) translateY(0);
   }
   50% {
-    transform: translateX(-50%) translateY(-5px);
+    transform: translateX(-50%) translateY(-4px);
   }
 }
 
 .spinButton {
   width: 100%;
-  padding: 18px;
-  font-size: 18px;
+  max-width: 280px;
+  padding: 16px;
+  font-size: 16px;
   font-weight: bold;
   color: #fff;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
   border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-bottom: 30px;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  letter-spacing: 1.5px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
 
 .spinButton:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 6px 25px rgba(59, 130, 246, 0.4);
 }
 
 .spinButton:active:not(:disabled) {
@@ -175,26 +188,28 @@
 .spinButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: linear-gradient(135deg, #888 0%, #555 100%);
+  background: linear-gradient(135deg, #cbd5e1 0%, #e2e8f0 100%);
 }
 
 .message {
   text-align: center;
-  padding: 15px;
-  margin-bottom: 20px;
+  padding: 14px;
+  margin-bottom: 18px;
   border-radius: 8px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
-  background: rgba(255, 107, 107, 0.1);
-  border: 2px solid #ff6b6b;
-  color: #ff6b6b;
+  background: rgba(244, 114, 124, 0.1);
+  border: 2px solid #f47280;
+  color: #e63946;
   animation: slideDown 0.4s ease-out;
+  width: 100%;
+  max-width: 280px;
 }
 
 .message.success {
-  background: rgba(76, 205, 196, 0.1);
-  border-color: #4ecdc4;
-  color: #4ecdc4;
+  background: rgba(34, 197, 94, 0.1);
+  border-color: #22c55e;
+  color: #16a34a;
   animation: pulse 0.6s ease-out;
 }
 
@@ -224,12 +239,14 @@
 .lastResult {
   text-align: center;
   padding: 12px;
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid #667eea;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(96, 165, 250, 0.08) 100%);
+  border: 1px solid #dbeafe;
   border-radius: 8px;
-  margin-bottom: 20px;
-  color: #b8a6e5;
-  font-size: 14px;
+  margin-bottom: 18px;
+  color: #475569;
+  font-size: 13px;
+  width: 100%;
+  max-width: 280px;
 }
 
 .lastResult p {
@@ -237,24 +254,26 @@
 }
 
 .lastResult strong {
-  color: #ffd700;
-  font-size: 16px;
+  color: #3b82f6;
+  font-size: 15px;
 }
 
 .info {
-  background: rgba(102, 126, 234, 0.05);
-  border: 2px solid #667eea;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(96, 165, 250, 0.05) 100%);
+  border: 2px solid #dbeafe;
   border-radius: 12px;
-  padding: 20px;
-  margin-top: 30px;
+  padding: 18px;
+  margin-top: 24px;
+  width: 100%;
+  max-width: 280px;
 }
 
 .info h3 {
-  color: #667eea;
-  font-size: 16px;
-  margin: 0 0 15px 0;
+  color: #3b82f6;
+  font-size: 14px;
+  margin: 0 0 12px 0;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   font-weight: bold;
 }
 
@@ -265,44 +284,90 @@
 }
 
 .info li {
-  color: #b8a6e5;
+  color: #64748b;
   padding: 8px 0;
-  font-size: 14px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   gap: 10px;
+  font-weight: 500;
 }
 
-/* Responsive */
+/* Mobile optimization */
 @media (max-width: 480px) {
   .wheelContainer {
-    padding: 15px;
+    padding: 12px;
+    margin-bottom: 70px;
   }
 
   .header h1 {
-    font-size: 26px;
+    font-size: 24px;
   }
 
-  .wheelWrapper {
-    width: 280px;
-    height: 280px;
-  }
-
-  .spinButton {
-    padding: 16px;
-    font-size: 16px;
+  .header {
+    margin-bottom: 20px;
   }
 
   .stats {
+    margin-bottom: 24px;
     gap: 10px;
   }
 
   .stat {
-    padding: 12px 20px;
-    min-width: 100px;
+    padding: 12px 16px;
+    min-width: 95px;
   }
 
   .stat .value {
-    font-size: 24px;
+    font-size: 22px;
+  }
+
+  .wheelWrapper {
+    max-width: 280px;
+    margin-bottom: 28px;
+  }
+
+  .spinButton {
+    max-width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    margin-bottom: 20px;
+  }
+
+  .message {
+    max-width: 100%;
+    font-size: 15px;
+    padding: 12px;
+  }
+
+  .lastResult {
+    max-width: 100%;
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .info {
+    max-width: 100%;
+    padding: 16px;
+  }
+
+  .info h3 {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .info li {
+    font-size: 12px;
+    padding: 6px 0;
+  }
+}
+
+@media (max-height: 800px) {
+  .wheelContainer {
+    margin-bottom: 70px;
+  }
+
+  .wheelWrapper {
+    max-width: 260px;
   }
 }
