@@ -13,21 +13,28 @@ import { List, Placeholder } from '@telegram-apps/telegram-ui';
 import { Page } from '@/components/Page';
 import { DisplayData, type DisplayDataRow } from '@/components/DisplayData/DisplayData';
 import styles from './wheel.module.css';
+import { useApp } from '@/context/AppContext';
+import * as api from '@/services/api';
 
 function getUserRows(user: User): DisplayDataRow[] {
   return Object.entries(user).map(([title, value]) => ({ title, value }));
 }
 
 const prizes = [
-  { label: '10 💰', color: '#FF6B6B' },
-  { label: '20 💰', color: '#4ECDC4' },
-  { label: '50 💰', color: '#FFE66D' },
-  { label: 'Nothing 😢', color: '#95A5A6' },
-  { label: '5 💰', color: '#A29BFE' },
-  { label: 'Bonus 🎁', color: '#FF85A2' },
+  { label: '10 💰', color: '#FF6B6B', value: 10 },
+  { label: '20 💰', color: '#4ECDC4', value: 20 },
+  { label: '50 💰', color: '#FFE66D', value: 50 },
+  { label: 'Nothing 😢', color: '#95A5A6', value: 0 },
+  { label: '5 💰', color: '#A29BFE', value: 5 },
+  { label: 'Bonus 🎁', color: '#FF85A2', value: 100 },
 ];
 
-export default function WheelPage() {
+interface WheelPageProps {
+  userId?: number;
+}
+
+export default function WheelPage({ userId }: WheelPageProps) {
+  const { user, token, spendKeys, updateBalance } = useApp();
   const initDataRaw = useRawInitData();
   const initDataState = useSignal(initData.state);
 
@@ -37,13 +44,21 @@ export default function WheelPage() {
 
   const [spinning, setSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
-  const [result, setResult] = useState<{ label: string; color: string } | null>(null);
+  const [result, setResult] = useState<{ label: string; color: string; value: number } | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const spinWheel = () => {
+  const spinWheel = async () => {
+    // Check if user has keys
+    if (!user || user.totalKeys === 0) {
+      setError('You need at least 1 key to spin!');
+      return;
+    }
+
     if (spinning) return;
     setSpinning(true);
     setShowResult(false);
+    setError(null);
 
     const spinDuration = 4000;
     const randomPrizeIndex = Math.floor(Math.random() * prizes.length);
@@ -52,14 +67,28 @@ export default function WheelPage() {
 
     setRotation(finalRotation);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       const prize = prizes[randomPrizeIndex];
       setResult(prize);
       setShowResult(true);
-      setSpinning(false);
 
-      // TODO: optionally call backend to record prize for this user
-      // fetch(`${process.env.NEXT_PUBLIC_API_URL}/tasks`, { ... })
+      // Spend 1 key from user
+      spendKeys(1);
+
+      // Call backend to record the spin result
+      // This verifies the spin and updates backend records
+      if (token) {
+        try {
+          await api.recordWheelSpin(token, prize.label, 1, prize.value);
+          // If successful, update user balance with prize
+          updateBalance(prize.value);
+        } catch (err) {
+          console.error('Failed to record spin:', err);
+          setError('Failed to record spin. Please try again.');
+        }
+      }
+
+      setSpinning(false);
     }, spinDuration);
   };
 
@@ -85,6 +114,11 @@ export default function WheelPage() {
       <List>
         <div className={styles.wheelContainer}>
           <h1 className={styles.title}>🎡 Lucky Wheel</h1>
+
+          <div className={styles.keyInfo}>
+            <span className={styles.keyCount}>🔑 {user?.totalKeys || 0} Keys</span>
+            <span className={styles.keyHint}>1 key = 1 spin</span>
+          </div>
 
           <div className={styles.wheelWrapper}>
             <div className={styles.pointer}></div>
@@ -147,11 +181,17 @@ export default function WheelPage() {
 
           <button
             onClick={spinWheel}
-            disabled={spinning}
-            className={`${styles.spinButton} ${spinning ? styles.spinning : ''}`}
+            disabled={spinning || !user || user.totalKeys === 0}
+            className={`${styles.spinButton} ${spinning ? styles.spinningButton : ''}`}
           >
-            {spinning ? '⏳ Spinning...' : '🎯 Spin Now!'}
+            {spinning ? '⏳ Spinning...' : !user || user.totalKeys === 0 ? '🔒 Need Keys' : '🎯 Spin Now!'}
           </button>
+
+          {error && (
+            <div className={styles.errorBox}>
+              ⚠️ {error}
+            </div>
+          )}
 
           {showResult && result && (
             <div className={styles.resultContainer}>
@@ -176,7 +216,7 @@ export default function WheelPage() {
             </div>
           )}
 
-          <p className={styles.subtitle}>Try your luck and win amazing prizes!</p>
+          <p className={styles.subtitle}>Complete tasks to earn more keys!</p>
         </div>
       </List>
     </Page>

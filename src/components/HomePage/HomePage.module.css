@@ -1,0 +1,228 @@
+.container {
+  padding: 20px;
+  padding-bottom: 120px;
+  max-width: 100%;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  animation: slideDown 0.6s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  font-weight: 500;
+}
+
+.statsContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.statCard {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  animation: slideUp 0.6s ease-out 0.1s both;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.statValue {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.statDesc {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.actionCards {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  border: 2px solid #f0f0f0;
+  transition: all 0.3s ease;
+  animation: slideUp 0.6s ease-out 0.2s both;
+}
+
+.card:hover {
+  border-color: #667eea;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+  transform: translateY(-4px);
+}
+
+.cardIcon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.cardDesc {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 12px 0;
+}
+
+.cardButton {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cardButton:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.cardButton:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.cardButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.infoBox {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-left: 4px solid #667eea;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  animation: slideUp 0.6s ease-out 0.3s both;
+}
+
+.infoBox h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.infoBox ol {
+  margin: 0;
+  padding-left: 20px;
+  color: #666;
+}
+
+.infoBox li {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.userInfo {
+  text-align: center;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #f0f0f0;
+  animation: slideUp 0.6s ease-out 0.4s both;
+}
+
+.userInfo p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.userInfo strong {
+  color: #667eea;
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 15px;
+    padding-bottom: 110px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .statsContainer {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .statCard {
+    padding: 12px;
+  }
+
+  .statValue {
+    font-size: 24px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+}
