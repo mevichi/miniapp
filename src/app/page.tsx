@@ -39,8 +39,8 @@ export default function Home() {
           footer="These pages help developer to learn more about current launch information"
         >
           <Link href="/init-data">
-            <Cell subtitle="User data, chat information, technical data">
-              Init Data
+            <Cell subtitle="Spin & Win">
+              Spin the wheel
             </Cell>
           </Link>
           <Link href="/launch-params">

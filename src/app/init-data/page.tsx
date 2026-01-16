@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   initData,
   type User,
@@ -10,62 +10,60 @@ import {
 } from '@tma.js/sdk-react';
 import { List, Placeholder } from '@telegram-apps/telegram-ui';
 
-import {
-  DisplayData,
-  type DisplayDataRow,
-} from '@/components/DisplayData/DisplayData';
 import { Page } from '@/components/Page';
+import { DisplayData, type DisplayDataRow } from '@/components/DisplayData/DisplayData';
+import styles from './wheel.module.css';
 
 function getUserRows(user: User): DisplayDataRow[] {
   return Object.entries(user).map(([title, value]) => ({ title, value }));
 }
 
-export default function InitDataPage() {
+const prizes = [
+  { label: '10 💰', color: '#FF6B6B' },
+  { label: '20 💰', color: '#4ECDC4' },
+  { label: '50 💰', color: '#FFE66D' },
+  { label: 'Nothing 😢', color: '#95A5A6' },
+  { label: '5 💰', color: '#A29BFE' },
+  { label: 'Bonus 🎁', color: '#FF85A2' },
+];
+
+export default function WheelPage() {
   const initDataRaw = useRawInitData();
   const initDataState = useSignal(initData.state);
 
-  const initDataRows = useMemo<DisplayDataRow[] | undefined>(() => {
-    if (!initDataState || !initDataRaw) {
-      return;
-    }
-    return [
-      { title: 'raw', value: initDataRaw },
-      ...Object.entries(initDataState).reduce<DisplayDataRow[]>(
-        (acc, [title, value]) => {
-          if (value instanceof Date) {
-            acc.push({ title, value: value.toISOString() });
-          } else if (!value || typeof value !== 'object') {
-            acc.push({ title, value });
-          }
-          return acc;
-        },
-        [],
-      ),
-    ];
-  }, [initDataState, initDataRaw]);
-
   const userRows = useMemo<DisplayDataRow[] | undefined>(() => {
-    return initDataState && initDataState.user
-      ? getUserRows(initDataState.user)
-      : undefined;
+    return initDataState && initDataState.user ? getUserRows(initDataState.user) : undefined;
   }, [initDataState]);
 
-  const receiverRows = useMemo<DisplayDataRow[] | undefined>(() => {
-    return initDataState && initDataState.receiver
-      ? getUserRows(initDataState.receiver)
-      : undefined;
-  }, [initDataState]);
+  const [spinning, setSpinning] = useState(false);
+  const [rotation, setRotation] = useState(0);
+  const [result, setResult] = useState<{ label: string; color: string } | null>(null);
+  const [showResult, setShowResult] = useState(false);
 
-  const chatRows = useMemo<DisplayDataRow[] | undefined>(() => {
-    return !initDataState?.chat
-      ? undefined
-      : Object.entries(initDataState.chat).map(([title, value]) => ({
-          title,
-          value,
-        }));
-  }, [initDataState]);
+  const spinWheel = () => {
+    if (spinning) return;
+    setSpinning(true);
+    setShowResult(false);
 
-  if (!initDataRows) {
+    const spinDuration = 4000;
+    const randomPrizeIndex = Math.floor(Math.random() * prizes.length);
+    const segmentAngle = 360 / prizes.length;
+    const finalRotation = 360 * 5 + randomPrizeIndex * segmentAngle;
+
+    setRotation(finalRotation);
+
+    setTimeout(() => {
+      const prize = prizes[randomPrizeIndex];
+      setResult(prize);
+      setShowResult(true);
+      setSpinning(false);
+
+      // TODO: optionally call backend to record prize for this user
+      // fetch(`${process.env.NEXT_PUBLIC_API_URL}/tasks`, { ... })
+    }, spinDuration);
+  };
+
+  if (!initDataState || !initDataRaw) {
     return (
       <Page>
         <Placeholder
@@ -81,15 +79,105 @@ export default function InitDataPage() {
       </Page>
     );
   }
+
   return (
     <Page>
       <List>
-        <DisplayData header={'Init Data'} rows={initDataRows} />
-        {userRows && <DisplayData header={'User'} rows={userRows} />}
-        {receiverRows && (
-          <DisplayData header={'Receiver'} rows={receiverRows} />
-        )}
-        {chatRows && <DisplayData header={'Chat'} rows={chatRows} />}
+        <div className={styles.wheelContainer}>
+          <h1 className={styles.title}>🎡 Lucky Wheel</h1>
+
+          <div className={styles.wheelWrapper}>
+            <div className={styles.pointer}></div>
+            <svg
+              className={`${styles.wheel} ${spinning ? styles.spinning : ''}`}
+              style={{
+                transform: `rotate(${rotation}deg)`,
+              }}
+              viewBox="0 0 300 300"
+              width="300"
+              height="300"
+            >
+              {prizes.map((prize, index) => {
+                const segmentAngle = 360 / prizes.length;
+                const startAngle = index * segmentAngle;
+                const midAngle = startAngle + segmentAngle / 2;
+                const radius = 150;
+
+                const x1 = 150 + radius * Math.cos((startAngle * Math.PI) / 180);
+                const y1 = 150 + radius * Math.sin((startAngle * Math.PI) / 180);
+                const x2 =
+                  150 + radius * Math.cos(((startAngle + segmentAngle) * Math.PI) / 180);
+                const y2 =
+                  150 + radius * Math.sin(((startAngle + segmentAngle) * Math.PI) / 180);
+
+                const textX =
+                  150 + (radius * 0.65) * Math.cos((midAngle * Math.PI) / 180);
+                const textY =
+                  150 + (radius * 0.65) * Math.sin((midAngle * Math.PI) / 180);
+
+                const largeArc = segmentAngle > 180 ? 1 : 0;
+
+                const pathData = [
+                  `M 150 150`,
+                  `L ${x1} ${y1}`,
+                  `A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`,
+                  'Z',
+                ].join(' ');
+
+                return (
+                  <g key={index}>
+                    <path d={pathData} fill={prize.color} stroke="white" strokeWidth="2" />
+                    <text
+                      x={textX}
+                      y={textY}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      className={styles.wheelText}
+                      transform={`rotate(${midAngle + 90} ${textX} ${textY})`}
+                    >
+                      {prize.label}
+                    </text>
+                  </g>
+                );
+              })}
+              <circle cx="150" cy="150" r="25" fill="white" stroke="#333" strokeWidth="2" />
+              <circle cx="150" cy="150" r="15" fill="#FFD700" />
+            </svg>
+          </div>
+
+          <button
+            onClick={spinWheel}
+            disabled={spinning}
+            className={`${styles.spinButton} ${spinning ? styles.spinning : ''}`}
+          >
+            {spinning ? '⏳ Spinning...' : '🎯 Spin Now!'}
+          </button>
+
+          {showResult && result && (
+            <div className={styles.resultContainer}>
+              <div
+                className={styles.resultBox}
+                style={{
+                  borderColor: result.color,
+                  boxShadow: `0 0 30px ${result.color}80`,
+                }}
+              >
+                <h2 className={styles.resultTitle}>🎉 Congratulations!</h2>
+                <p className={styles.resultText}>You won:</p>
+                <p
+                  className={styles.prizeText}
+                  style={{
+                    color: result.color,
+                  }}
+                >
+                  {result.label}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <p className={styles.subtitle}>Try your luck and win amazing prizes!</p>
+        </div>
       </List>
     </Page>
   );
