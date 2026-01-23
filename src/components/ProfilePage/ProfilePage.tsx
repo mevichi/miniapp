@@ -3,13 +3,77 @@
 import styles from './ProfilePage.module.css';
 import { useApp } from '@/context/AppContext';
 
-export function ProfilePage() {
+export function ProfilePage(props: { onNavigate?: (page: string) => void }) {
   const { user, logout } = useApp();
 
   const handleLogout = () => {
     logout();
     window.location.href = '/';
   };
+
+  const handleConnectWallet = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!walletInput.trim()) {
+      setMessage({ type: 'error', text: 'Please enter a valid wallet address' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await connectWallet(walletInput);
+      setMessage({ type: 'success', text: 'Wallet connected successfully!' });
+      setWalletInput('');
+      setShowConnectForm(false);
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Failed to connect wallet',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleWithdraw = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amount = parseFloat(withdrawAmount);
+
+    if (!amount || amount <= 0) {
+      setMessage({ type: 'error', text: 'Please enter a valid amount' });
+      return;
+    }
+
+    if (amount > (user?.balance || 0)) {
+      setMessage({ type: 'error', text: 'Insufficient balance' });
+      return;
+    }
+
+    if (!user?.walletAddress) {
+      setMessage({ type: 'error', text: 'Please connect a wallet first' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await withdrawCoins(amount);
+      setMessage({
+        type: 'success',
+        text: `Successfully withdrawn ${amount} coins!`,
+      });
+      setWithdrawAmount('');
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Withdrawal failed',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const maxWithdraw = user?.balance || 0;
+  const minWithdraw = 10;
+  const canWithdraw = maxWithdraw >= minWithdraw && user?.walletAddress;
 
   return (
     <div className={styles.container}>
@@ -66,15 +130,16 @@ export function ProfilePage() {
         </div>
       </div>
 
-      {/* Wallet Info */}
-      {user?.walletAddress && (
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>🔗 Connected Wallet</h3>
-          <div className={styles.walletBox}>
-            <p className={styles.walletAddress}>{user.walletAddress}</p>
-          </div>
-        </div>
-      )}
+      {/* Wallet Link */}
+      <div className={styles.section}>
+        <button
+          className={styles.walletLink}
+          onClick={() => props.onNavigate?.('wallet')}
+        >
+          <span>💳 Wallet Management</span>
+          <span>→</span>
+        </button>
+      </div>
 
       {/* Achievements */}
       <div className={styles.section}>

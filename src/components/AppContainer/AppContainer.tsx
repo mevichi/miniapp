@@ -76,9 +76,9 @@ export function AppContainer() {
       case 'treasury':
         return <TreasuryBoxPage />;
       case 'wallet':
-        return <WalletPage />;
+        return <WalletPage onNavigate={handleNavigate} />;
       case 'profile':
-        return <ProfilePage />;
+        return <ProfilePage onNavigate={handleNavigate} />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }

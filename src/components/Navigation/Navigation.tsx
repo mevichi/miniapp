@@ -52,7 +52,7 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
         onClick={() => onNavigate('wallet')}
         title="Wallet"
       >
-        <span className={styles.icon}>💰</span>
+        <span className={styles.icon}>💳</span>
         <span className={styles.label}>Wallet</span>
       </button>
 

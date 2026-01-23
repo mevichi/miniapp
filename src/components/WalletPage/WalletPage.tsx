@@ -4,7 +4,7 @@ import { useState } from 'react';
 import styles from './WalletPage.module.css';
 import { useApp } from '@/context/AppContext';
 
-export function WalletPage() {
+export function WalletPage(props: { onNavigate?: (page: string) => void }) {
   const { user, token, connectWallet, withdrawCoins } = useApp();
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [loading, setLoading] = useState(false);

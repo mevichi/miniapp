@@ -148,20 +148,41 @@
   color: #333;
 }
 
-.walletBox {
-  background: #f5f5f5;
-  border: 2px solid #f0f0f0;
-  border-radius: 10px;
-  padding: 16px;
+.description {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
 }
 
-.walletAddress {
-  margin: 0;
-  font-family: monospace;
-  font-size: 12px;
-  color: #666;
-  word-break: break-all;
+.walletLink {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 16px;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.walletLink:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.walletLink:active {
+  transform: translateY(0);
+}
+
+.walletLink span:last-child {
+  margin-left: 8px;
+  font-size: 18px;
 }
 
 .achievementsList {
