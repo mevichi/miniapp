@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { Wheel, type ItemProps } from 'spin-wheel';
+import { useEffect, useRef, useState } from 'react';
 import styles from './Wheel.module.css';
 
 export interface WheelSegment {
@@ -11,7 +10,7 @@ export interface WheelSegment {
   weight: number;
 }
 
-interface WheelProps {
+interface CustomWheelProps {
   segments: WheelSegment[];
   onSpinComplete?: (segment: WheelSegment, segmentIndex: number) => void;
   isSpinning?: boolean;
@@ -31,80 +30,171 @@ const COLORS = [
   '#8b7856'
 ];
 
-export const CustomWheel: React.FC<WheelProps> = ({
+export const CustomWheel: React.FC<CustomWheelProps> = ({
   segments,
   onSpinComplete,
   isSpinning = false,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const wheelRef = useRef<Wheel | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [rotation, setRotation] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const animationRef = useRef<number | null>(null);
+  const rotationRef = useRef(0);
 
-  useEffect(() => {
-    if (!containerRef.current) return;
+  // Calculate total weight for weighted random selection
+  const getTotalWeight = () => {
+    return segments.reduce((sum, seg) => sum + (seg.weight || 1), 0);
+  };
 
-    // Convert segments to spin-wheel ItemProps format
-    const items: ItemProps[] = segments.map((seg, idx) => ({
-      label: seg.label,
-      value: seg.value,
-      backgroundColor: seg.backgroundColor || COLORS[idx % COLORS.length],
-      weight: seg.weight,
-    }));
+  // Get weighted random segment
+  const getRandomSegmentIndex = () => {
+    const totalWeight = getTotalWeight();
+    let random = Math.random() * totalWeight;
+    for (let i = 0; i < segments.length; i++) {
+      random -= segments[i].weight || 1;
+      if (random <= 0) return i;
+    }
+    return segments.length - 1;
+  };
 
-    // Initialize wheel
-    const wheel = new Wheel(containerRef.current, {
-      radius: 0.48,
-      rotationResistance: 0,
-      itemLabelRadius: 0.92,
-      itemLabelRadiusMax: 0.3,
-      itemLabelRotation: 180,
-      itemLabelAlign: 'left',
-      itemLabelBaselineOffset: -0.07,
-      itemLabelColors: ['#fff'],
-      itemLabelFont:
-        '"Suez One", "Mochiy Pop P One", "Jua", "Unbounded", "Mitr", "Noto Sans TC", "Noto Sans SC", "Noto Sans Lao", "Noto Color Emoji"',
-      itemLabelFontSizeMax: 55,
-      itemBackgroundColors: COLORS,
-      rotationSpeedMax: 2000,
-      lineWidth: 1,
-      lineColor: '#fff',
-      items,
+  // Draw wheel on canvas
+  const drawWheel = (ctx: CanvasRenderingContext2D, currentRotation: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = Math.min(centerX, centerY) - 10;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const sliceAngle = (2 * Math.PI) / segments.length;
+
+    segments.forEach((segment, index) => {
+      const startAngle = index * sliceAngle + (currentRotation * Math.PI) / 180;
+      const endAngle = startAngle + sliceAngle;
+
+      // Draw segment
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+      ctx.closePath();
+      ctx.fillStyle = segment.backgroundColor || COLORS[index % COLORS.length];
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Draw text
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(startAngle + sliceAngle / 2);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 16px Arial';
+      ctx.fillText(segment.label, radius - 30, 5);
+      ctx.restore();
     });
 
-    wheelRef.current = wheel;
+    // Draw center circle
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 15, 0, 2 * Math.PI);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.stroke();
 
-    // Handle spin completion
-    wheel.onRest = (event: any) => {
-      if (onSpinComplete && event.currentIndex !== undefined) {
-        const selectedSegment = segments[event.currentIndex];
-        onSpinComplete(selectedSegment, event.currentIndex);
+    // Draw pointer
+    ctx.beginPath();
+    ctx.moveTo(centerX, 10);
+    ctx.lineTo(centerX - 15, 35);
+    ctx.lineTo(centerX + 15, 35);
+    ctx.closePath();
+    ctx.fillStyle = '#ff4b78';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  };
+
+  // Draw on initial load
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Set canvas size
+    const rect = canvas.parentElement?.getBoundingClientRect();
+    if (rect) {
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      drawWheel(ctx, rotationRef.current);
+    }
+  }, [segments]);
+
+  // Handle spinning animation
+  useEffect(() => {
+    if (!isSpinning) return;
+
+    setIsAnimating(true);
+    const selectedIndex = getRandomSegmentIndex();
+    const targetRotation = rotationRef.current + 360 * 5 + (selectedIndex * 360) / segments.length;
+
+    let startTime: number | null = null;
+    const duration = 3000; // 3 seconds spin
+
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Easing function (ease-out)
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      const newRotation = rotationRef.current + (targetRotation - rotationRef.current) * easeProgress;
+
+      rotationRef.current = newRotation % 360;
+      setRotation(rotationRef.current);
+
+      const ctx = canvasRef.current?.getContext('2d');
+      if (ctx) {
+        drawWheel(ctx, rotationRef.current);
+      }
+
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      } else {
+        setIsAnimating(false);
+        if (onSpinComplete) {
+          onSpinComplete(segments[selectedIndex], selectedIndex);
+        }
       }
     };
+
+    animationRef.current = requestAnimationFrame(animate);
 
     return () => {
-      if (wheelRef.current) {
-        wheelRef.current.remove();
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [segments, onSpinComplete]);
-
-  const handleSpin = () => {
-    if (wheelRef.current && !isSpinning) {
-      // Generate random rotation speed and spin
-      const randomSpeed = Math.random() * 1000 + 1000;
-      wheelRef.current.spin(randomSpeed);
-    }
-  };
+  }, [isSpinning, segments, onSpinComplete, segments]);
 
   return (
     <div className={styles.wheelWrapper}>
-      <div ref={containerRef} className={styles.wheelContainer}></div>
-      <button
-        onClick={handleSpin}
-        disabled={isSpinning}
-        className={styles.spinButton}
-      >
-        {isSpinning ? 'Spinning...' : 'Spin!'}
-      </button>
+      <canvas
+        ref={canvasRef}
+        className={styles.wheelCanvas}
+        style={{
+          display: 'block',
+          maxWidth: '100%',
+          height: 'auto',
+        }}
+      />
     </div>
   );
 };

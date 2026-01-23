@@ -201,27 +201,7 @@ export function WheelPage() {
         </div>
       )}
 
-      {/* Instructions Section */}
-      <section className={styles.info}>
-        <h3>How to Play</h3>
-        <ul>
-          <li>✅ Complete tasks to earn keys</li>
-          <li>🎡 Use {KEYS_PER_SPIN} key to spin the wheel</li>
-          <li>💰 Win coins based on luck and odds</li>
-          <li>🎯 Higher weights = harder to win, bigger rewards!</li>
-        </ul>
-        <div className={styles.odds}>
-          <h4>Prize Odds:</h4>
-          <ul className={styles.oddslist}>
-            <li>100 coins - 12% (Very rare!)</li>
-            <li>50 coins - 20% (Rare)</li>
-            <li>20 coins - 33% (Common)</li>
-            <li>10 coins - 33% (Common)</li>
-            <li>5 coins - 33% (Common)</li>
-            <li>Nothing - 50% (Ouch!)</li>
-          </ul>
-        </div>
-      </section>
+     
     </div>
   );
 }
