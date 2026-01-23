@@ -47,14 +47,6 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
         <span className={styles.label}>Treasury</span>
       </button>
 
-      <button
-        className={`${styles.navItem} ${currentPage === 'wallet' ? styles.active : ''}`}
-        onClick={() => onNavigate('wallet')}
-        title="Wallet"
-      >
-        <span className={styles.icon}>💳</span>
-        <span className={styles.label}>Wallet</span>
-      </button>
 
       <button
         className={`${styles.navItem} ${currentPage === 'profile' ? styles.active : ''}`}
