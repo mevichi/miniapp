@@ -7,7 +7,7 @@ export interface WheelSegment {
   label: string;
   value: number;
   color: string;
-  weight?: number; // Higher weight = more likely to win
+  weight: number; // Required - controls probability
 }
 
 interface WheelProps {
@@ -134,14 +134,14 @@ export const CustomWheel: React.FC<WheelProps> = ({
     segment: WheelSegment;
   } => {
     // Calculate total weight
-    const totalWeight = segments.reduce((sum, seg) => sum + (seg.weight || 1), 0);
+    const totalWeight = segments.reduce((sum, seg) => sum + seg.weight, 0);
 
     // Generate random number
     let random = Math.random() * totalWeight;
 
     // Find segment
     for (let i = 0; i < segments.length; i++) {
-      random -= segments[i].weight || 1;
+      random -= segments[i].weight;
       if (random <= 0) {
         return { index: i, segment: segments[i] };
       }

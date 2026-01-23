@@ -91,7 +91,7 @@ export function WheelPage() {
    * Handle spin completion
    */
   const handleSpinComplete = useCallback(
-    async (segment: typeof WHEEL_SEGMENTS[0], segmentIndex: number) => {
+    (segment: typeof WHEEL_SEGMENTS[0], segmentIndex: number) => {
       // Update balance and display result
       const resultMessage =
         segment.value > 0
@@ -110,8 +110,8 @@ export function WheelPage() {
         isSpinning: false,
       }));
 
-      // Record result to backend
-      await recordSpinToBackend(segment.label, segment.value);
+      // Record result to backend asynchronously without awaiting
+      recordSpinToBackend(segment.label, segment.value);
     },
     [updateBalance, recordSpinToBackend]
   );
