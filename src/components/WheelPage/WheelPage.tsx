@@ -1,22 +1,20 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useApp } from '@/context/AppContext';
-import { Wheel } from 'spin-wheel';
+import { CustomWheel } from './Wheel';
 import styles from './WheelPage.module.css';
 
-// Constants
+// Wheel segments with weights
 const WHEEL_SEGMENTS = [
-  { label: '10', value: 10, color: '#FF6B6B' },
-  { label: '20', value: 20, color: '#4ECDC4' },
-  { label: '50', value: 50, color: '#FFE66D' },
-  { label: 'Nothing', value: 0, color: '#95E1D3' },
-  { label: '5', value: 5, color: '#C7CEEA' },
-  { label: '100', value: 100, color: '#FF8B94' },
+  { label: '10', value: 10, color: '#FF6B6B', weight: 1 },
+  { label: '20', value: 20, color: '#4ECDC4', weight: 1 },
+  { label: '50', value: 50, color: '#FFE66D', weight: 0.5 }, // Harder to win
+  { label: 'Nothing', value: 0, color: '#95E1D3', weight: 1.5 }, // More likely
+  { label: '5', value: 5, color: '#C7CEEA', weight: 1 },
+  { label: '100', value: 100, color: '#FF8B94', weight: 0.3 }, // Rare!
 ];
 
-const ANIMATION_DURATION = 4000; // ms
-const SPIN_ROUNDS = 5;
 const KEYS_PER_SPIN = 1;
 const API_ENDPOINT = 'https://api.solfren.dev/api/wheel/spin';
 
@@ -30,8 +28,8 @@ interface WheelState {
 
 /**
  * WheelPage Component
- * Displays an interactive spinning wheel game using the spin-wheel library
- * Users can spin the wheel with keys to win coins
+ * Beautiful spinning wheel with weighted segments
+ * Users can spin with keys to win coins
  */
 export function WheelPage() {
   // Context
@@ -45,9 +43,6 @@ export function WheelPage() {
     message: '',
   });
 
-  const wheelContainerRef = useRef<HTMLDivElement>(null);
-  const wheelRef = useRef<Wheel | null>(null);
-
   // Loading state
   if (!user) {
     return (
@@ -59,45 +54,6 @@ export function WheelPage() {
 
   const { balance, totalKeys } = user;
   const canSpin = totalKeys >= KEYS_PER_SPIN && !state.isSpinning;
-
-  /**
-   * Initialize the spin-wheel component
-   */
-  useEffect(() => {
-    if (!wheelContainerRef.current) return;
-
-    // Create wheel configuration
-    const wheelConfig = {
-      items: WHEEL_SEGMENTS.map((segment) => ({
-        label: segment.label,
-        value: segment.value,
-      })),
-      itemBackgroundColors: WHEEL_SEGMENTS.map((s) => s.color),
-      itemLabelFontSizeMax: 24,
-      outerRadius: 90,
-      textFillStyle: '#fff',
-      textOrientation: 'horizontal' as const,
-      lineWidth: 3,
-      strokeStyle: '#fff',
-      rotationResistance: -60,
-      rotationSpeedMax: 400,
-      isInteractive: true,
-    };
-
-    // Initialize wheel
-    try {
-      wheelRef.current = new Wheel(wheelContainerRef.current, wheelConfig);
-    } catch (error) {
-      console.error('Failed to initialize wheel:', error);
-    }
-
-    return () => {
-      // Cleanup wheel
-      if (wheelRef.current) {
-        wheelRef.current.remove?.();
-      }
-    };
-  }, []);
 
   /**
    * Record the spin result to the backend
@@ -120,8 +76,7 @@ export function WheelPage() {
         });
 
         if (response.ok) {
-          const data = await response.json();
-          console.log('Spin recorded successfully:', data);
+          console.log('Spin recorded successfully');
         } else {
           console.warn('Failed to record spin:', response.statusText);
         }
@@ -133,12 +88,40 @@ export function WheelPage() {
   );
 
   /**
-   * Main spin handler
+   * Handle spin completion
    */
-  const handleSpin = useCallback(async () => {
+  const handleSpinComplete = useCallback(
+    async (segment: typeof WHEEL_SEGMENTS[0], segmentIndex: number) => {
+      // Update balance and display result
+      const resultMessage =
+        segment.value > 0
+          ? `🎉 You won ${segment.value} coins!`
+          : '😢 Better luck next time!';
+
+      if (segment.value > 0) {
+        updateBalance(segment.value);
+      }
+
+      setState((prev) => ({
+        ...prev,
+        lastPrize: segment.value,
+        lastLabel: segment.label,
+        message: resultMessage,
+        isSpinning: false,
+      }));
+
+      // Record result to backend
+      await recordSpinToBackend(segment.label, segment.value);
+    },
+    [updateBalance, recordSpinToBackend]
+  );
+
+  /**
+   * Initiate spin
+   */
+  const handleSpin = async () => {
     // Validation
-    if (!canSpin || !wheelRef.current) return;
-    if (totalKeys < KEYS_PER_SPIN) {
+    if (!canSpin) {
       setState((prev) => ({
         ...prev,
         message: `❌ You need at least ${KEYS_PER_SPIN} key(s) to spin!`,
@@ -155,57 +138,7 @@ export function WheelPage() {
 
     // Spend key
     spendKeys(KEYS_PER_SPIN);
-
-    // Select random prize
-    const randomIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
-    const selectedSegment = WHEEL_SEGMENTS[randomIndex];
-
-    try {
-      // Use spinToItem for smooth animation
-      const duration = ANIMATION_DURATION;
-      const revolutions = SPIN_ROUNDS;
-      const spinDirection = 1; // clockwise
-
-      wheelRef.current.spinToItem(
-        randomIndex,
-        duration,
-        true,
-        revolutions,
-        spinDirection
-      );
-
-      // Wait for animation to complete
-      await new Promise((resolve) => setTimeout(resolve, duration));
-
-      // Update balance and display result
-      const resultMessage =
-        selectedSegment.value > 0
-          ? `🎉 You won ${selectedSegment.value} coins!`
-          : '😢 Better luck next time!';
-
-      if (selectedSegment.value > 0) {
-        updateBalance(selectedSegment.value);
-      }
-
-      setState((prev) => ({
-        ...prev,
-        lastPrize: selectedSegment.value,
-        lastLabel: selectedSegment.label,
-        message: resultMessage,
-        isSpinning: false,
-      }));
-
-      // Record result to backend
-      await recordSpinToBackend(selectedSegment.label, selectedSegment.value);
-    } catch (error) {
-      console.error('Error during spin:', error);
-      setState((prev) => ({
-        ...prev,
-        isSpinning: false,
-        message: '❌ An error occurred during the spin',
-      }));
-    }
-  }, [canSpin, totalKeys, spendKeys, updateBalance, recordSpinToBackend]);
+  };
 
   return (
     <div className={styles.wheelContainer}>
@@ -228,13 +161,25 @@ export function WheelPage() {
       </section>
 
       {/* Wheel Section */}
-      <section className={styles.wheelWrapper}>
-        <div
-          ref={wheelContainerRef}
-          className={styles.wheelContainer_inner}
-          style={{ width: '300px', height: '300px', margin: '0 auto' }}
+      <section className={styles.wheelSection}>
+        <CustomWheel
+          segments={WHEEL_SEGMENTS}
+          onSpinComplete={handleSpinComplete}
+          isSpinning={state.isSpinning}
+          radius={150}
         />
-        <div className={styles.pointer} />
+        <button
+          className={styles.spinButton}
+          onClick={handleSpin}
+          disabled={!canSpin}
+          aria-label="Spin the wheel"
+        >
+          {state.isSpinning
+            ? 'SPINNING...'
+            : totalKeys < KEYS_PER_SPIN
+              ? 'NO KEYS'
+              : `SPIN (${KEYS_PER_SPIN} KEY)`}
+        </button>
       </section>
 
       {/* Results Section */}
@@ -257,29 +202,26 @@ export function WheelPage() {
         </div>
       )}
 
-      {/* Spin Button */}
-      <button
-        className={styles.spinButton}
-        onClick={handleSpin}
-        disabled={!canSpin}
-        aria-label="Spin the wheel"
-      >
-        {state.isSpinning
-          ? 'SPINNING...'
-          : totalKeys < KEYS_PER_SPIN
-            ? 'NO KEYS'
-            : `SPIN (${KEYS_PER_SPIN} KEY)`}
-      </button>
-
       {/* Instructions Section */}
       <section className={styles.info}>
         <h3>How to Play</h3>
         <ul>
           <li>✅ Complete tasks to earn keys</li>
           <li>🎡 Use {KEYS_PER_SPIN} key to spin the wheel</li>
-          <li>💰 Win up to 100 coins per spin</li>
-          <li>🎯 Try your luck and get lucky!</li>
+          <li>💰 Win coins based on luck and odds</li>
+          <li>🎯 Higher weights = harder to win, bigger rewards!</li>
         </ul>
+        <div className={styles.odds}>
+          <h4>Prize Odds:</h4>
+          <ul className={styles.oddslist}>
+            <li>100 coins - 12% (Very rare!)</li>
+            <li>50 coins - 20% (Rare)</li>
+            <li>20 coins - 33% (Common)</li>
+            <li>10 coins - 33% (Common)</li>
+            <li>5 coins - 33% (Common)</li>
+            <li>Nothing - 50% (Ouch!)</li>
+          </ul>
+        </div>
       </section>
     </div>
   );
