@@ -7,12 +7,12 @@ import styles from './WheelPage.module.css';
 
 // Wheel segments with weights
 const WHEEL_SEGMENTS = [
-  { label: '10', value: 10, color: '#FF6B6B', weight: 1 },
-  { label: '20', value: 20, color: '#4ECDC4', weight: 1 },
-  { label: '50', value: 50, color: '#FFE66D', weight: 0.5 }, // Harder to win
-  { label: 'Nothing', value: 0, color: '#95E1D3', weight: 1.5 }, // More likely
-  { label: '5', value: 5, color: '#C7CEEA', weight: 1 },
-  { label: '100', value: 100, color: '#FF8B94', weight: 0.3 }, // Rare!
+  { label: '10', value: 10, weight: 1 },
+  { label: '20', value: 20, weight: 1 },
+  { label: '50', value: 50, weight: 0.5 }, // Harder to win
+  { label: 'Nothing', value: 0, weight: 1.5 }, // More likely
+  { label: '5', value: 5, weight: 1 },
+  { label: '100', value: 100, weight: 0.3 }, // Rare!
 ];
 
 const KEYS_PER_SPIN = 1;
@@ -166,7 +166,6 @@ export function WheelPage() {
           segments={WHEEL_SEGMENTS}
           onSpinComplete={handleSpinComplete}
           isSpinning={state.isSpinning}
-          radius={150}
         />
         <button
           className={styles.spinButton}
