@@ -8,6 +8,7 @@ import { Navigation } from '@/components/Navigation/Navigation';
 import { HomePage } from '@/components/HomePage/HomePage';
 import { TasksPage } from '@/components/TasksPage/TasksPage';
 import { WheelPage } from '@/components/WheelPage/WheelPage';
+import { TreasuryBoxPage } from '@/components/TreasuryPage/TreasuryBoxPage';
 import { WalletPage } from '@/components/WalletPage/WalletPage';
 import { ProfilePage } from '@/components/ProfilePage/ProfilePage';
 import styles from './AppContainer.module.css';
@@ -72,6 +73,8 @@ export function AppContainer() {
         return <TasksPage />;
       case 'wheel':
         return <WheelPage />;
+      case 'treasury':
+        return <TreasuryBoxPage />;
       case 'wallet':
         return <WalletPage />;
       case 'profile':

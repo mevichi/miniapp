@@ -1,3 +1,3 @@
 
 
-export type PageType = 'home' | 'tasks' | 'wheel' | 'wallet' | 'profile';
+export type PageType = 'home' | 'tasks' | 'wheel' | 'treasury' | 'wallet' | 'profile';

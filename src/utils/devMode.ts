@@ -7,12 +7,14 @@
  * Check if the app is running in development mode
  */
 export const isDev = (): boolean => {
+  // Check the NEXT_PUBLIC_ENV environment variable
   if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_ENV === 'dev') {
     return true;
   }
+  // Client-side check
   if (typeof window !== 'undefined') {
-    // Also check client-side if needed
-    return true;
+    const env = (window as any).__NEXT_DATA__?.env?.NEXT_PUBLIC_ENV;
+    return env === 'dev';
   }
   return false;
 };
@@ -49,7 +51,7 @@ export const getMockDevUserResponse = () => ({
   userId: MOCK_DEV_USER.id,
   username: MOCK_DEV_USER.username,
   balance: 500,
-  totalKeys: 10,
+  totalKeys: 50,
   totalSpins: 0,
 });
 

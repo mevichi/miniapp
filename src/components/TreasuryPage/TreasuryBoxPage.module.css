@@ -1,0 +1,241 @@
+.treasuryContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.header h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #3b82f6;
+  margin: 0 0 4px 0;
+  text-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #60a5fa;
+  margin: 0;
+}
+
+.stats {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(96, 165, 250, 0.08) 100%);
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  min-width: 90px;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #3b82f6;
+  text-transform: uppercase;
+}
+
+.value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #60a5fa;
+}
+
+.rewardsInfo {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(96, 165, 250, 0.03) 100%);
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  display: none;
+}
+
+.rewardsInfo h3 {
+  margin: 0 0 12px 0;
+  color: #3b82f6;
+  font-size: 16px;
+}
+
+.rewardsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.rewardItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.rewardIcon {
+  font-size: 28px;
+}
+
+.rewardText {
+  font-size: 12px;
+  color: #60a5fa;
+  text-align: center;
+}
+
+.boxSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 8px 0;
+}
+
+.openButton {
+  padding: 12px 32px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  border: 2px solid #1e40af;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  z-index: 10;
+  position: relative;
+}
+
+.openButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+  background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%);
+}
+
+.openButton:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(184, 134, 11, 0.4);
+}
+
+.openButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #888 0%, #aaa 100%);
+}
+
+.message {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 107, 107, 0.05) 100%);
+  border-left: 4px solid #ff6b6b;
+  color: #ff6b6b;
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
+  width: 100%;
+  text-align: center;
+  max-width: 100%;
+  font-size: 13px;
+}
+
+.message.success {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border-left-color: #3b82f6;
+  color: #3b82f6;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reward {
+  padding: 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(96, 165, 250, 0.08) 100%);
+  border: 2px solid rgba(59, 130, 246, 0.4);
+  text-align: center;
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  width: 100%;
+  max-width: 100%;
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.rewardLabel {
+  font-size: 14px;
+  font-weight: bold;
+  color: #3b82f6;
+  margin-bottom: 8px;
+}
+
+.rewardAmount {
+  font-size: 32px;
+  font-weight: bold;
+  color: #60a5fa;
+  text-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+@media (max-width: 600px) {
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .stats {
+    gap: 12px;
+  }
+
+  .stat {
+    min-width: 100px;
+    padding: 10px 16px;
+  }
+
+  .value {
+    font-size: 20px;
+  }
+
+  .openButton {
+    padding: 12px 32px;
+    font-size: 14px;
+  }
+}

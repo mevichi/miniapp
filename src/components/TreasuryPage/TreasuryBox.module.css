@@ -1,0 +1,154 @@
+.treasuryWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.1) 0%,
+    rgba(139, 92, 246, 0.1) 100%
+  );
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.25),
+    inset 0 0 30px rgba(59, 130, 246, 0.1);
+  border: 3px solid rgba(59, 130, 246, 0.3);
+  overflow: hidden;
+  animation: treasureGlow 3s ease-in-out infinite;
+}
+
+@keyframes treasureGlow {
+  0%,
+  100% {
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.25),
+      inset 0 0 30px rgba(59, 130, 246, 0.1);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.35),
+      inset 0 0 40px rgba(59, 130, 246, 0.15);
+  }
+}
+
+.treasuryCanvas {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.2));
+}
+
+.glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.4) 0%,
+    rgba(255, 215, 0, 0) 70%
+  );
+  animation: shine 0.8s ease-out;
+  pointer-events: none;
+}
+
+@keyframes shine {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.openButton {
+  padding: 14px 40px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  border: 2px solid #1e40af;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.openButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+  background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%);
+}
+
+.openButton:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(184, 134, 11, 0.4);
+}
+
+.openButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #888 0%, #aaa 100%);
+}
+
+.message {
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 107, 107, 0.05) 100%);
+  border-left: 4px solid #ff6b6b;
+  color: #ff6b6b;
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
+}
+
+.message.success {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border-left-color: #3b82f6;
+  color: #3b82f6;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reward {
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  text-align: center;
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.rewardLabel {
+  font-size: 18px;
+  font-weight: bold;
+  color: #3b82f6;
+  margin-bottom: 10px;
+}
+
+.rewardAmount {
+  font-size: 32px;
+  font-weight: bold;
+  color: #60a5fa;
+  text-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}

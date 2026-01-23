@@ -1,0 +1,203 @@
+'use client';
+
+import { useState, useCallback } from 'react';
+import { useApp } from '@/context/AppContext';
+import { TreasuryBox, type TreasuryReward } from './TreasuryBox';
+import styles from './TreasuryBoxPage.module.css';
+
+const KEYS_COST = 10;
+const API_ENDPOINT = 'https://api.solfren.dev/api/treasury/open';
+
+interface TreasuryState {
+  isOpening: boolean;
+  lastReward: TreasuryReward | null;
+  message: string;
+}
+
+/**
+ * TreasuryBoxPage Component
+ * Players spend 10 keys to open a treasure box
+ * Rewards: 20 keys (rare), 5 keys (common), or 10-100 coins
+ */
+export function TreasuryBoxPage() {
+  // Context
+  const { user, spendKeys, addKeys, updateBalance, token } = useApp();
+
+  // State
+  const [state, setState] = useState<TreasuryState>({
+    isOpening: false,
+    lastReward: null,
+    message: '',
+  });
+
+  // Loading state
+  if (!user) {
+    return (
+      <div className={styles.treasuryContainer}>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  const { balance, totalKeys } = user;
+  const canOpen = totalKeys >= KEYS_COST && !state.isOpening;
+
+  /**
+   * Record the treasury open to backend
+   */
+  const recordOpenToBackend = useCallback(
+    async (reward: TreasuryReward) => {
+      try {
+        const response = await fetch(API_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            rewardType: reward.type,
+            rewardAmount: reward.amount,
+            keysCost: KEYS_COST,
+            timestamp: new Date().toISOString(),
+          }),
+        });
+
+        if (response.ok) {
+          console.log('Treasury open recorded successfully');
+        } else {
+          console.warn('Failed to record treasury open:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error recording treasury open:', error);
+      }
+    },
+    [token]
+  );
+
+  /**
+   * Handle box opening
+   */
+  const handleBoxOpen = useCallback((reward: TreasuryReward) => {
+    let resultMessage = '';
+
+    if (reward.type === 'keys') {
+      addKeys(reward.amount);
+      resultMessage = `✨ You found ${reward.amount} keys!`;
+    } else {
+      updateBalance(reward.amount);
+      resultMessage = `💰 You found ${reward.amount} coins!`;
+    }
+
+    setState((prev) => ({
+      ...prev,
+      lastReward: reward,
+      message: resultMessage,
+      isOpening: false,
+    }));
+
+    recordOpenToBackend(reward);
+  }, [addKeys, updateBalance, recordOpenToBackend]);
+
+  /**
+   * Initiate opening
+   */
+  const handleOpen = async () => {
+    if (!canOpen) {
+      setState((prev) => ({
+        ...prev,
+        message: `❌ You need at least ${KEYS_COST} keys to open the treasury!`,
+      }));
+      return;
+    }
+
+    setState((prev) => ({
+      ...prev,
+      isOpening: true,
+      message: '',
+    }));
+
+    // Spend keys
+    spendKeys(KEYS_COST);
+  };
+
+  return (
+    <div className={styles.treasuryContainer}>
+      {/* Header Section */}
+      <header className={styles.header}>
+        <h1>🏺 Treasure Box</h1>
+        <p className={styles.subtitle}>Spend {KEYS_COST} keys to open and discover treasures!</p>
+      </header>
+
+      {/* Stats Section */}
+      <section className={styles.stats}>
+        <div className={styles.stat}>
+          <span className={styles.label}>Keys</span>
+          <span className={styles.value}>{totalKeys}</span>
+        </div>
+        <div className={styles.stat}>
+          <span className={styles.label}>Balance</span>
+          <span className={styles.value}>{balance}</span>
+        </div>
+      </section>
+
+      {/* Rewards Info */}
+      <section className={styles.rewardsInfo}>
+        <h3>Possible Rewards</h3>
+        <div className={styles.rewardsList}>
+          <div className={styles.rewardItem}>
+            <span className={styles.rewardIcon}>🔑</span>
+            <span className={styles.rewardText}>20 Keys (Rare)</span>
+          </div>
+          <div className={styles.rewardItem}>
+            <span className={styles.rewardIcon}>🪙</span>
+            <span className={styles.rewardText}>10-100 Coins</span>
+          </div>
+          <div className={styles.rewardItem}>
+            <span className={styles.rewardIcon}>✨</span>
+            <span className={styles.rewardText}>5 Keys (Common)</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Treasury Box Section */}
+      <section className={styles.boxSection}>
+        <TreasuryBox
+          onOpen={handleBoxOpen}
+          isOpening={state.isOpening}
+        />
+        <button
+          className={styles.openButton}
+          onClick={handleOpen}
+          disabled={!canOpen}
+          aria-label="Open the treasury box"
+        >
+          {state.isOpening
+            ? 'OPENING...'
+            : totalKeys < KEYS_COST
+              ? `NO KEYS (NEED ${KEYS_COST})`
+              : `OPEN (${KEYS_COST} KEYS)`}
+        </button>
+      </section>
+
+      {/* Results Section */}
+      {state.message && (
+        <div
+          className={`${styles.message} ${
+            state.message.includes('found') ? styles.success : ''
+          }`}
+        >
+          {state.message}
+        </div>
+      )}
+
+      {state.lastReward && (
+        <div className={styles.reward}>
+          <div className={styles.rewardLabel}>
+            {state.lastReward.type === 'keys' ? '🔑 Keys Found!' : '💰 Coins Found!'}
+          </div>
+          <div className={styles.rewardAmount}>{state.lastReward.amount}</div>
+        </div>
+      )}
+    </div>
+  );
+}
