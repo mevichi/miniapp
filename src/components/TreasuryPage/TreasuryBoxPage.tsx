@@ -5,7 +5,7 @@ import { useApp } from '@/context/AppContext';
 import { TreasuryBox, type TreasuryReward } from './TreasuryBox';
 import styles from './TreasuryBoxPage.module.css';
 
-const KEYS_COST = 10;
+const KEYS_COST = 3;
 const API_ENDPOINT = 'https://api.solfren.dev/api/treasury/open';
 
 interface TreasuryState {
