@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useApp } from '@/context/AppContext';
+import { Wheel } from 'spin-wheel';
 import styles from './WheelPage.module.css';
 
 // Constants
@@ -22,7 +23,6 @@ const API_ENDPOINT = 'https://api.solfren.dev/api/wheel/spin';
 // Types
 interface WheelState {
   isSpinning: boolean;
-  rotation: number;
   lastPrize: number | null;
   lastLabel: string;
   message: string;
@@ -30,7 +30,8 @@ interface WheelState {
 
 /**
  * WheelPage Component
- * Displays a spinning wheel game where users can use keys to win coins
+ * Displays an interactive spinning wheel game using the spin-wheel library
+ * Users can spin the wheel with keys to win coins
  */
 export function WheelPage() {
   // Context
@@ -39,13 +40,13 @@ export function WheelPage() {
   // State
   const [state, setState] = useState<WheelState>({
     isSpinning: false,
-    rotation: 0,
     lastPrize: null,
     lastLabel: '',
     message: '',
   });
 
-  const wheelRef = useRef<HTMLDivElement>(null);
+  const wheelContainerRef = useRef<HTMLDivElement>(null);
+  const wheelRef = useRef<Wheel | null>(null);
 
   // Loading state
   if (!user) {
@@ -60,13 +61,43 @@ export function WheelPage() {
   const canSpin = totalKeys >= KEYS_PER_SPIN && !state.isSpinning;
 
   /**
-   * Calculate the rotation angle for a given segment index
+   * Initialize the spin-wheel component
    */
-  const calculateRotation = (segmentIndex: number): number => {
-    const segmentDegrees = 360 / WHEEL_SEGMENTS.length;
-    const targetDegree = segmentIndex * segmentDegrees;
-    return SPIN_ROUNDS * 360 + (360 - targetDegree);
-  };
+  useEffect(() => {
+    if (!wheelContainerRef.current) return;
+
+    // Create wheel configuration
+    const wheelConfig = {
+      items: WHEEL_SEGMENTS.map((segment) => ({
+        label: segment.label,
+        value: segment.value,
+      })),
+      itemBackgroundColors: WHEEL_SEGMENTS.map((s) => s.color),
+      itemLabelFontSizeMax: 24,
+      outerRadius: 90,
+      textFillStyle: '#fff',
+      textOrientation: 'horizontal' as const,
+      lineWidth: 3,
+      strokeStyle: '#fff',
+      rotationResistance: -60,
+      rotationSpeedMax: 400,
+      isInteractive: true,
+    };
+
+    // Initialize wheel
+    try {
+      wheelRef.current = new Wheel(wheelContainerRef.current, wheelConfig);
+    } catch (error) {
+      console.error('Failed to initialize wheel:', error);
+    }
+
+    return () => {
+      // Cleanup wheel
+      if (wheelRef.current) {
+        wheelRef.current.remove?.();
+      }
+    };
+  }, []);
 
   /**
    * Record the spin result to the backend
@@ -104,9 +135,9 @@ export function WheelPage() {
   /**
    * Main spin handler
    */
-  const handleSpin = async () => {
+  const handleSpin = useCallback(async () => {
     // Validation
-    if (state.isSpinning) return;
+    if (!canSpin || !wheelRef.current) return;
     if (totalKeys < KEYS_PER_SPIN) {
       setState((prev) => ({
         ...prev,
@@ -129,37 +160,52 @@ export function WheelPage() {
     const randomIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
     const selectedSegment = WHEEL_SEGMENTS[randomIndex];
 
-    // Calculate and apply rotation
-    const totalRotation = calculateRotation(randomIndex);
-    setState((prev) => ({
-      ...prev,
-      rotation: prev.rotation + totalRotation,
-    }));
+    try {
+      // Use spinToItem for smooth animation
+      const duration = ANIMATION_DURATION;
+      const revolutions = SPIN_ROUNDS;
+      const spinDirection = 1; // clockwise
 
-    // Wait for spin animation to complete
-    await new Promise((resolve) => setTimeout(resolve, ANIMATION_DURATION));
+      wheelRef.current.spinToItem(
+        randomIndex,
+        duration,
+        true,
+        revolutions,
+        spinDirection
+      );
 
-    // Update balance and display result
-    const resultMessage =
-      selectedSegment.value > 0
-        ? `🎉 You won ${selectedSegment.value} coins!`
-        : '😢 Better luck next time!';
+      // Wait for animation to complete
+      await new Promise((resolve) => setTimeout(resolve, duration));
 
-    if (selectedSegment.value > 0) {
-      updateBalance(selectedSegment.value);
+      // Update balance and display result
+      const resultMessage =
+        selectedSegment.value > 0
+          ? `🎉 You won ${selectedSegment.value} coins!`
+          : '😢 Better luck next time!';
+
+      if (selectedSegment.value > 0) {
+        updateBalance(selectedSegment.value);
+      }
+
+      setState((prev) => ({
+        ...prev,
+        lastPrize: selectedSegment.value,
+        lastLabel: selectedSegment.label,
+        message: resultMessage,
+        isSpinning: false,
+      }));
+
+      // Record result to backend
+      await recordSpinToBackend(selectedSegment.label, selectedSegment.value);
+    } catch (error) {
+      console.error('Error during spin:', error);
+      setState((prev) => ({
+        ...prev,
+        isSpinning: false,
+        message: '❌ An error occurred during the spin',
+      }));
     }
-
-    setState((prev) => ({
-      ...prev,
-      lastPrize: selectedSegment.value,
-      lastLabel: selectedSegment.label,
-      message: resultMessage,
-      isSpinning: false,
-    }));
-
-    // Record result to backend
-    await recordSpinToBackend(selectedSegment.label, selectedSegment.value);
-  };
+  }, [canSpin, totalKeys, spendKeys, updateBalance, recordSpinToBackend]);
 
   return (
     <div className={styles.wheelContainer}>
@@ -184,31 +230,10 @@ export function WheelPage() {
       {/* Wheel Section */}
       <section className={styles.wheelWrapper}>
         <div
-          ref={wheelRef}
-          className={styles.wheel}
-          style={{
-            transform: `rotate(${state.rotation}deg)`,
-            transition: state.isSpinning
-              ? `transform ${ANIMATION_DURATION}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`
-              : 'none',
-          }}
-        >
-          {WHEEL_SEGMENTS.map((segment, index) => {
-            const angle = (360 / WHEEL_SEGMENTS.length) * index;
-            return (
-              <div
-                key={segment.label}
-                className={styles.segment}
-                style={{
-                  transform: `rotate(${angle}deg)`,
-                  background: segment.color,
-                }}
-              >
-                <span className={styles.segmentLabel}>{segment.label}</span>
-              </div>
-            );
-          })}
-        </div>
+          ref={wheelContainerRef}
+          className={styles.wheelContainer_inner}
+          style={{ width: '300px', height: '300px', margin: '0 auto' }}
+        />
         <div className={styles.pointer} />
       </section>
 

@@ -12,7 +12,7 @@ import { WalletPage } from '@/components/WalletPage/WalletPage';
 import { ProfilePage } from '@/components/ProfilePage/ProfilePage';
 import styles from './AppContainer.module.css';
 import { PageType } from '@/utils/types';
-
+import { isDev, createMockInitData, MOCK_DEV_USER, logDevMode } from '@/utils/devMode';
 
 export function AppContainer() {
   const [currentPage, setCurrentPage] = useState<PageType>('home');
@@ -25,7 +25,14 @@ export function AppContainer() {
   useEffect(() => {
     const initializeUser = async () => {
       try {
-        if (initDataRaw && !token) {
+        // Dev mode: auto-login with mock data
+        if (isDev() && !token) {
+          logDevMode();
+          const mockInitData = createMockInitData();
+          await login(mockInitData, MOCK_DEV_USER.id, MOCK_DEV_USER.username);
+        } 
+        // Production mode: use Telegram init data
+        else if (initDataRaw && !token) {
           const user = initDataState?.user;
           if (user) {
             await login(initDataRaw, user.id, user.username);
@@ -38,7 +45,8 @@ export function AppContainer() {
       }
     };
 
-    if (initDataRaw) {
+    // Initialize in dev mode or when initDataRaw is available
+    if (isDev() || initDataRaw) {
       initializeUser();
     }
   }, [initDataRaw, initDataState, token, login]);
@@ -82,3 +90,4 @@ export function AppContainer() {
     </div>
   );
 }
+
