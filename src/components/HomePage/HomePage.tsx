@@ -32,6 +32,12 @@ export function HomePage({ onNavigate }: HomePageProps) {
         </div>
 
         <div className={styles.statCard}>
+          <div className={styles.statValue}>{user?.totalDiamonds || 0}</div>
+          <div className={styles.statLabel}>💎 Diamonds</div>
+          <div className={styles.statDesc}>Activity tracker</div>
+        </div>
+
+        <div className={styles.statCard}>
           <div className={styles.statValue}>{user?.totalSpins || 0}</div>
           <div className={styles.statLabel}>🎡 Spins</div>
           <div className={styles.statDesc}>Total spins done</div>

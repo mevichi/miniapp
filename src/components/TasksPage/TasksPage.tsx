@@ -15,12 +15,13 @@ interface Task {
 }
 
 export function TasksPage() {
-  const { user, token, addKeys } = useApp();
+  const { user, token, addKeys, addDiamonds } = useApp();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [watchingAd, setWatchingAd] = useState<string | null>(null);
   const [adProgress, setAdProgress] = useState(0);
   const [completingTask, setCompletingTask] = useState<string | null>(null);
+  const [rewardMessage, setRewardMessage] = useState<{ show: boolean; keysEarned: number; diamondsEarned: number }>({ show: false, keysEarned: 0, diamondsEarned: 0 });
 
   useEffect(() => {
     fetchTasks();
@@ -74,6 +75,19 @@ export function TasksPage() {
 
       // Update local UI
       addKeys(result.keysEarned);
+      addDiamonds(result.diamondsEarned || 1);
+
+      // Show reward message
+      setRewardMessage({
+        show: true,
+        keysEarned: result.keysEarned,
+        diamondsEarned: result.diamondsEarned || 1,
+      });
+
+      // Hide message after 3 seconds
+      setTimeout(() => {
+        setRewardMessage({ show: false, keysEarned: 0, diamondsEarned: 0 });
+      }, 3000);
 
       // Mark task as completed
       setTasks((prev) =>
@@ -96,13 +110,30 @@ export function TasksPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>✓ Tasks</h1>
-        <p className={styles.subtitle}>Complete tasks to earn keys</p>
+        <p className={styles.subtitle}>Complete tasks to earn keys and diamonds</p>
       </div>
+
+      {rewardMessage.show && (
+        <div className={styles.rewardNotification}>
+          <div className={styles.rewardContent}>
+            <span className={styles.rewardEmoji}>🎉</span>
+            <div>
+              <strong>Task Completed!</strong>
+              <p>+{rewardMessage.keysEarned} 🔑 Keys</p>
+              <p>+{rewardMessage.diamondsEarned} 💎 Diamonds</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className={styles.statsBar}>
         <div className={styles.stat}>
           <span>🔑 Your Keys</span>
           <strong>{user?.totalKeys || 0}</strong>
+        </div>
+        <div className={styles.stat}>
+          <span>💎 Diamonds</span>
+          <strong>{user?.totalDiamonds || 0}</strong>
         </div>
         <div className={styles.stat}>
           <span>✓ Completed</span>

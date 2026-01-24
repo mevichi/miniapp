@@ -12,6 +12,7 @@ interface TreasuryState {
   isOpening: boolean;
   lastReward: TreasuryReward | null;
   message: string;
+  showRewardNotification: boolean;
 }
 
 /**
@@ -21,13 +22,14 @@ interface TreasuryState {
  */
 export function TreasuryBoxPage() {
   // Context
-  const { user, spendKeys, addKeys, updateBalance, token } = useApp();
+  const { user, spendKeys, addKeys, updateBalance, addDiamonds, token } = useApp();
 
   // State
   const [state, setState] = useState<TreasuryState>({
     isOpening: false,
     lastReward: null,
     message: '',
+    showRewardNotification: false,
   });
 
   // Loading state
@@ -88,15 +90,27 @@ export function TreasuryBoxPage() {
       resultMessage = `💰 You found ${reward.amount} coins!`;
     }
 
+    // Add diamond for opening treasury
+    addDiamonds(1);
+
     setState((prev) => ({
       ...prev,
       lastReward: reward,
       message: resultMessage,
       isOpening: false,
+      showRewardNotification: true,
     }));
 
+    // Hide notification after 3 seconds
+    setTimeout(() => {
+      setState((prev) => ({
+        ...prev,
+        showRewardNotification: false,
+      }));
+    }, 3000);
+
     recordOpenToBackend(reward);
-  }, [addKeys, updateBalance, recordOpenToBackend]);
+  }, [addKeys, updateBalance, addDiamonds, recordOpenToBackend]);
 
   /**
    * Initiate opening
@@ -122,6 +136,19 @@ export function TreasuryBoxPage() {
 
   return (
     <div className={styles.treasuryContainer}>
+      {/* Reward Notification */}
+      {state.showRewardNotification && (
+        <div className={styles.rewardNotification}>
+          <div className={styles.rewardContent}>
+            <span className={styles.rewardEmoji}>🎉</span>
+            <div>
+              <strong>Treasury Opened!</strong>
+              <p>+1 💎 Diamond</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header Section */}
       <header className={styles.header}>
         <h1>🏺 Treasure Box</h1>
@@ -137,6 +164,10 @@ export function TreasuryBoxPage() {
         <div className={styles.stat}>
           <span className={styles.label}>Balance</span>
           <span className={styles.value}>{balance}</span>
+        </div>
+        <div className={styles.stat}>
+          <span className={styles.label}>Diamonds</span>
+          <span className={styles.value}>{user?.totalDiamonds || 0}</span>
         </div>
       </section>
 

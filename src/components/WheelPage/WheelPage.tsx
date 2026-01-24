@@ -24,6 +24,8 @@ interface WheelState {
   lastPrize: number | null;
   lastLabel: string;
   message: string;
+  showRewardNotification: boolean;
+  diamondsEarned: number;
 }
 
 /**
@@ -33,7 +35,7 @@ interface WheelState {
  */
 export function WheelPage() {
   // Context
-  const { user, spendKeys, updateBalance, token } = useApp();
+  const { user, spendKeys, updateBalance, addDiamonds, token } = useApp();
 
   // State
   const [state, setState] = useState<WheelState>({
@@ -41,6 +43,8 @@ export function WheelPage() {
     lastPrize: null,
     lastLabel: '',
     message: '',
+    showRewardNotification: false,
+    diamondsEarned: 0,
   });
 
   // Loading state
@@ -102,18 +106,31 @@ export function WheelPage() {
         updateBalance(segment.value);
       }
 
+      // Add diamond for spin
+      addDiamonds(1);
+
       setState((prev) => ({
         ...prev,
         lastPrize: segment.value,
         lastLabel: segment.label,
         message: resultMessage,
         isSpinning: false,
+        showRewardNotification: true,
+        diamondsEarned: 1,
       }));
+
+      // Hide notification after 3 seconds
+      setTimeout(() => {
+        setState((prev) => ({
+          ...prev,
+          showRewardNotification: false,
+        }));
+      }, 3000);
 
       // Record result to backend asynchronously without awaiting
       recordSpinToBackend(segment.label, segment.value);
     },
-    [updateBalance, recordSpinToBackend]
+    [updateBalance, addDiamonds, recordSpinToBackend]
   );
 
   /**
@@ -142,6 +159,19 @@ export function WheelPage() {
 
   return (
     <div className={styles.wheelContainer}>
+      {/* Reward Notification */}
+      {state.showRewardNotification && (
+        <div className={styles.rewardNotification}>
+          <div className={styles.rewardContent}>
+            <span className={styles.rewardEmoji}>🎉</span>
+            <div>
+              <strong>Spin Complete!</strong>
+              <p>+1 💎 Diamond</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header Section */}
       <header className={styles.header}>
         <h1>🎡 Spin the Wheel</h1>
@@ -157,6 +187,10 @@ export function WheelPage() {
         <div className={styles.stat}>
           <span className={styles.label}>Balance</span>
           <span className={styles.value}>{balance}</span>
+        </div>
+        <div className={styles.stat}>
+          <span className={styles.label}>Diamonds</span>
+          <span className={styles.value}>{user?.totalDiamonds || 0}</span>
         </div>
       </section>
 
