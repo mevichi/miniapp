@@ -12,6 +12,7 @@ interface Task {
   reward: number;
   completed: boolean;
   type: string;
+  canRetryAt?: Date | null;
 }
 
 export function TasksPage() {
@@ -22,10 +23,29 @@ export function TasksPage() {
   const [adProgress, setAdProgress] = useState(0);
   const [completingTask, setCompletingTask] = useState<string | null>(null);
   const [rewardMessage, setRewardMessage] = useState<{ show: boolean; keysEarned: number; diamondsEarned: number }>({ show: false, keysEarned: 0, diamondsEarned: 0 });
+  const [cooldownTimers, setCooldownTimers] = useState<Record<string, number>>({}); // Minutes remaining for each task
 
   useEffect(() => {
     fetchTasks();
   }, [token]);
+
+  // Timer interval for updating cooldown countdown
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCooldownTimers((prev) => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach((taskId) => {
+          updated[taskId] -= 1;
+          if (updated[taskId] <= 0) {
+            delete updated[taskId];
+          }
+        });
+        return updated;
+      });
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchTasks = async () => {
     if (!token) return;
@@ -35,6 +55,20 @@ export function TasksPage() {
       // Call backend to get all available tasks
       const data = await api.getTasks(token);
       setTasks(data);
+
+      // Initialize cooldown timers for tasks that have canRetryAt
+      const timers: Record<string, number> = {};
+      data.forEach((task: Task) => {
+        if (task.canRetryAt) {
+          const retryAt = new Date(task.canRetryAt);
+          const now = new Date();
+          const minutesRemaining = Math.ceil((retryAt.getTime() - now.getTime()) / (60 * 1000));
+          if (minutesRemaining > 0) {
+            timers[task.taskId] = minutesRemaining;
+          }
+        }
+      });
+      setCooldownTimers(timers);
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
     } finally {
@@ -89,18 +123,54 @@ export function TasksPage() {
         setRewardMessage({ show: false, keysEarned: 0, diamondsEarned: 0 });
       }, 3000);
 
-      // Mark task as completed
+      // Mark task as completed and add cooldown timer
       setTasks((prev) =>
         prev.map((task) =>
-          task.taskId === taskId ? { ...task, completed: true } : task
+          task.taskId === taskId 
+            ? { ...task, completed: true, canRetryAt: new Date(Date.now() + 60 * 60 * 1000) } 
+            : task
         )
       );
+
+      // Set cooldown timer to 60 minutes
+      setCooldownTimers((prev) => ({
+        ...prev,
+        [taskId]: 60,
+      }));
 
       // Reset states
       setWatchingAd(null);
       setAdProgress(0);
-    } catch (error) {
-      console.error('Failed to complete task:', error);
+    } catch (error: any) {
+      // Handle cooldown error
+      if (error.response?.status === 400 && error.response?.data?.canRetryAt) {
+        const retryAt = new Date(error.response.data.canRetryAt);
+        const now = new Date();
+        const minutesRemaining = Math.ceil((retryAt.getTime() - now.getTime()) / (60 * 1000));
+        
+        // Update cooldown timer
+        setCooldownTimers((prev) => ({
+          ...prev,
+          [taskId]: Math.max(0, minutesRemaining),
+        }));
+
+        // Show error message
+        setRewardMessage({
+          show: true,
+          keysEarned: 0,
+          diamondsEarned: 0,
+        });
+
+        setTimeout(() => {
+          setRewardMessage({ show: false, keysEarned: 0, diamondsEarned: 0 });
+        }, 3000);
+      } else {
+        console.error('Failed to complete task:', error);
+      }
+
+      // Reset states
+      setWatchingAd(null);
+      setAdProgress(0);
     } finally {
       setCompletingTask(null);
     }
@@ -197,8 +267,13 @@ export function TasksPage() {
                         <h3 className={styles.taskName}>{task.name}</h3>
                         <p className={styles.taskDesc}>{task.description}</p>
                       </div>
-                      {task.completed && (
+                      {task.completed && !cooldownTimers[task.taskId] && (
                         <span className={styles.completedBadge}>✓ Done</span>
+                      )}
+                      {cooldownTimers[task.taskId] && (
+                        <span className={styles.cooldownBadge}>
+                          ⏱️ {cooldownTimers[task.taskId]}m
+                        </span>
                       )}
                     </div>
 
@@ -208,12 +283,17 @@ export function TasksPage() {
                         <span className={styles.rewardLabel}>🔑</span>
                       </div>
 
-                      {!task.completed && (
+                      {!task.completed && !cooldownTimers[task.taskId] && (
                         <button
                           className={styles.watchButton}
                           onClick={() => watchAd(task.taskId)}
                         >
                           Watch Ad
+                        </button>
+                      )}
+                      {cooldownTimers[task.taskId] && (
+                        <button className={styles.watchButton} disabled>
+                          Available in {cooldownTimers[task.taskId]}m
                         </button>
                       )}
                     </div>
