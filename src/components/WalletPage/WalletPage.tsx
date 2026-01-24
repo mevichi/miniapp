@@ -75,7 +75,9 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
 
   const maxWithdraw = user?.balance || 0;
   const minWithdraw = 10;
-  const canWithdraw = maxWithdraw >= minWithdraw && user?.walletAddress;
+  const minDiamonds = 100;
+  const totalDiamonds = user?.totalDiamonds || 0;
+  const canWithdraw = maxWithdraw >= minWithdraw && user?.walletAddress && totalDiamonds >= minDiamonds;
 
   return (
     <div className={styles.container}>
@@ -151,6 +153,16 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
       {user?.walletAddress && (
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Withdraw Coins</h2>
+
+          {totalDiamonds < minDiamonds && (
+            <div className={styles.requirementWarning}>
+              💎 You need <strong>{minDiamonds}</strong> diamonds to withdraw
+              <br />
+              Current: <strong>{totalDiamonds}</strong> diamonds
+              <br />
+              Earn diamonds by completing tasks, spinning the wheel, and opening treasure boxes!
+            </div>
+          )}
 
           <form onSubmit={handleWithdraw} className={styles.withdrawForm}>
             <div className={styles.formGroup}>

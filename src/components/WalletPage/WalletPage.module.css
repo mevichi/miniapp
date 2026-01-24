@@ -91,6 +91,18 @@
   color: #333;
 }
 
+.requirementWarning {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(96, 165, 250, 0.1) 100%);
+  border: 2px solid #3b82f6;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #1e40af;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
 .walletConnected {
   display: flex;
   align-items: center;

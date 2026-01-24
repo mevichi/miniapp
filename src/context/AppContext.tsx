@@ -8,6 +8,7 @@ interface User {
   username: string;
   balance: number;
   totalKeys: number;
+  totalDiamonds: number;
   totalSpins: number;
   walletAddress?: string;
 }
@@ -26,6 +27,7 @@ interface AppContextType {
   refreshUser: () => Promise<void>;
   addKeys: (amount: number) => void;
   spendKeys: (amount: number) => void;
+  addDiamonds: (amount: number) => void;
   updateBalance: (amount: number) => void;
 
   // Task methods
@@ -57,6 +59,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           username: response.username,
           balance: response.balance,
           totalKeys: response.totalKeys,
+          totalDiamonds: response.totalDiamonds || 0,
           totalSpins: 0,
         });
       } catch (err) {
@@ -87,6 +90,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
               ...prev,
               balance: profile.balance,
               totalKeys: profile.totalKeys,
+              totalDiamonds: profile.totalDiamonds || 0,
               totalSpins: profile.totalSpins,
             }
           : null
@@ -129,6 +133,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const addDiamonds = useCallback((amount: number) => {
+    setUser((prev) =>
+      prev
+        ? {
+            ...prev,
+            totalDiamonds: prev.totalDiamonds + amount,
+          }
+        : null
+    );
+  }, []);
+
   const completeTaskHandler = useCallback(
     async (taskId: string) => {
       if (!token) throw new Error('Not authenticated');
@@ -136,6 +151,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         const result = await api.completeTask(token, taskId);
         addKeys(result.keysEarned);
+        addDiamonds(result.diamondsEarned || 1);
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Task completion failed';
         setError(message);
@@ -203,6 +219,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         refreshUser,
         addKeys,
         spendKeys,
+        addDiamonds,
         updateBalance,
         completeTask: completeTaskHandler,
         connectWallet: connectWalletHandler,

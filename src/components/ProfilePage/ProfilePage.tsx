@@ -50,6 +50,14 @@ export function ProfilePage(props: { onNavigate?: (page: PageType) => void }) {
           </div>
 
           <div className={styles.statItem}>
+            <div className={styles.statIcon}>💎</div>
+            <div className={styles.statContent}>
+              <p className={styles.statLabel}>Diamonds</p>
+              <p className={styles.statValue}>{user?.totalDiamonds || 0}</p>
+            </div>
+          </div>
+
+          <div className={styles.statItem}>
             <div className={styles.statIcon}>🎡</div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Total Spins</p>
