@@ -24,8 +24,6 @@ interface WheelState {
   lastPrize: number | null;
   lastLabel: string;
   message: string;
-  showRewardNotification: boolean;
-  diamondsEarned: number;
 }
 
 /**
@@ -43,8 +41,6 @@ export function WheelPage() {
     lastPrize: null,
     lastLabel: '',
     message: '',
-    showRewardNotification: false,
-    diamondsEarned: 0,
   });
 
   // Loading state
@@ -99,8 +95,8 @@ export function WheelPage() {
       // Update balance and display result
       const resultMessage =
         segment.value > 0
-          ? `🎉 You won ${segment.value} coins!`
-          : '😢 Better luck next time!';
+          ? `🎉 You won ${segment.value} coins + 1 💎 Diamond!`
+          : '😢 Better luck next time! + 1 💎 Diamond';
 
       if (segment.value > 0) {
         updateBalance(segment.value);
@@ -115,17 +111,7 @@ export function WheelPage() {
         lastLabel: segment.label,
         message: resultMessage,
         isSpinning: false,
-        showRewardNotification: true,
-        diamondsEarned: 1,
       }));
-
-      // Hide notification after 3 seconds
-      setTimeout(() => {
-        setState((prev) => ({
-          ...prev,
-          showRewardNotification: false,
-        }));
-      }, 3000);
 
       // Record result to backend asynchronously without awaiting
       recordSpinToBackend(segment.label, segment.value);
@@ -159,19 +145,6 @@ export function WheelPage() {
 
   return (
     <div className={styles.wheelContainer}>
-      {/* Reward Notification */}
-      {state.showRewardNotification && (
-        <div className={styles.rewardNotification}>
-          <div className={styles.rewardContent}>
-            <span className={styles.rewardEmoji}>🎉</span>
-            <div>
-              <strong>Spin Complete!</strong>
-              <p>+1 💎 Diamond</p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Header Section */}
       <header className={styles.header}>
         <h1>🎡 Spin the Wheel</h1>

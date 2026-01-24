@@ -12,7 +12,6 @@ interface TreasuryState {
   isOpening: boolean;
   lastReward: TreasuryReward | null;
   message: string;
-  showRewardNotification: boolean;
 }
 
 /**
@@ -29,7 +28,6 @@ export function TreasuryBoxPage() {
     isOpening: false,
     lastReward: null,
     message: '',
-    showRewardNotification: false,
   });
 
   // Loading state
@@ -84,10 +82,10 @@ export function TreasuryBoxPage() {
 
     if (reward.type === 'keys') {
       addKeys(reward.amount);
-      resultMessage = `✨ You found ${reward.amount} keys!`;
+      resultMessage = `✨ You found ${reward.amount} keys + 1 💎 Diamond!`;
     } else {
       updateBalance(reward.amount);
-      resultMessage = `💰 You found ${reward.amount} coins!`;
+      resultMessage = `💰 You found ${reward.amount} coins + 1 💎 Diamond!`;
     }
 
     // Add diamond for opening treasury
@@ -98,16 +96,7 @@ export function TreasuryBoxPage() {
       lastReward: reward,
       message: resultMessage,
       isOpening: false,
-      showRewardNotification: true,
     }));
-
-    // Hide notification after 3 seconds
-    setTimeout(() => {
-      setState((prev) => ({
-        ...prev,
-        showRewardNotification: false,
-      }));
-    }, 3000);
 
     recordOpenToBackend(reward);
   }, [addKeys, updateBalance, addDiamonds, recordOpenToBackend]);
@@ -136,19 +125,6 @@ export function TreasuryBoxPage() {
 
   return (
     <div className={styles.treasuryContainer}>
-      {/* Reward Notification */}
-      {state.showRewardNotification && (
-        <div className={styles.rewardNotification}>
-          <div className={styles.rewardContent}>
-            <span className={styles.rewardEmoji}>🎉</span>
-            <div>
-              <strong>Treasury Opened!</strong>
-              <p>+1 💎 Diamond</p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Header Section */}
       <header className={styles.header}>
         <h1>🏺 Treasure Box</h1>

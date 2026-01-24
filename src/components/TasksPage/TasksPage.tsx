@@ -116,11 +116,10 @@ export function TasksPage() {
       {rewardMessage.show && (
         <div className={styles.rewardNotification}>
           <div className={styles.rewardContent}>
-            <span className={styles.rewardEmoji}>🎉</span>
+            <span className={styles.rewardEmoji}>✓</span>
             <div>
               <strong>Task Completed!</strong>
-              <p>+{rewardMessage.keysEarned} 🔑 Keys</p>
-              <p>+{rewardMessage.diamondsEarned} 💎 Diamonds</p>
+              <p>+{rewardMessage.keysEarned} 🔑 Keys + {rewardMessage.diamondsEarned} 💎 Diamonds</p>
             </div>
           </div>
         </div>
