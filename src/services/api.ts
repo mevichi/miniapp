@@ -18,6 +18,54 @@ const useDevMode = (): boolean => {
 };
 
 /**
+ * Dev mode state tracking - persists across page navigates
+ */
+const DEV_MODE_STORAGE_KEY = 'dev_mode_ad_state';
+
+interface DevModeAdState {
+  lastAdCompletedAt?: number; // Timestamp in milliseconds
+  adProgress: number;
+}
+
+const getDevModeAdState = (): DevModeAdState => {
+  if (typeof window === 'undefined') {
+    return { adProgress: 0 };
+  }
+  
+  try {
+    const stored = localStorage.getItem(DEV_MODE_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : { adProgress: 0 };
+  } catch (error) {
+    console.error('Failed to get dev mode state:', error);
+    return { adProgress: 0 };
+  }
+};
+
+const setDevModeAdState = (state: DevModeAdState) => {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    localStorage.setItem(DEV_MODE_STORAGE_KEY, JSON.stringify(state));
+  } catch (error) {
+    console.error('Failed to set dev mode state:', error);
+  }
+};
+
+const calculateDevModeCooldown = (lastAdCompletedAt?: number): number => {
+  if (!lastAdCompletedAt) return 0;
+  
+  const THREE_MINUTES_MS = 3 * 60 * 1000;
+  const now = Date.now();
+  const timeSinceLastAd = now - lastAdCompletedAt;
+  
+  if (timeSinceLastAd >= THREE_MINUTES_MS) {
+    return 0;
+  }
+  
+  return Math.ceil((THREE_MINUTES_MS - timeSinceLastAd) / 1000);
+};
+
+/**
  * User authentication and verification
  * Endpoint: POST /api/auth/verify
  * Required for: Initial app load, verifying Telegram user
@@ -102,8 +150,11 @@ export const getUserProfile = async (token: string) => {
  */
 export const getTasks = async (token: string) => {
   try {
-    // Dev mode: return mock tasks
+    // Dev mode: return mock tasks with persistent state
     if (useDevMode()) {
+      const devState = getDevModeAdState();
+      const cooldownRemaining = calculateDevModeCooldown(devState.lastAdCompletedAt);
+      
       return [
         {
           taskId: 'task-1',
@@ -113,8 +164,8 @@ export const getTasks = async (token: string) => {
           completed: false,
           type: 'watch_ad',
           totalAds: 50,
-          adProgress: 5,
-          cooldownRemaining: 0,
+          adProgress: devState.adProgress,
+          cooldownRemaining: cooldownRemaining,
           canRetryAt: null,
         },
         {
@@ -160,12 +211,35 @@ export const completeTask = async (token: string, taskId: string) => {
     // Dev mode: return mock success with ad progress
     if (useDevMode()) {
       console.info(`✅ Dev Mode: Task ${taskId} completed (mock)`);
-      // Simulate incrementing ad progress (no rewards per ad)
-      const mockAdProgress = Math.floor(Math.random() * 50) + 1; // Random 1-50 for demo
-      const isClaimingReward = mockAdProgress >= 50; // When all 50 ads watched
+      
+      const devState = getDevModeAdState();
+      
+      // Check if user is trying to watch an ad but cooldown still active
+      const cooldownRemaining = calculateDevModeCooldown(devState.lastAdCompletedAt);
+      if (cooldownRemaining > 0) {
+        throw {
+          response: {
+            status: 400,
+            data: {
+              error: `Wait ${cooldownRemaining} seconds before watching the next ad`,
+              cooldownRemaining: cooldownRemaining,
+              adProgress: devState.adProgress,
+            }
+          }
+        };
+      }
+      
+      // Update dev mode state
+      const newAdProgress = Math.min(devState.adProgress + 1, 50);
+      const isClaimingReward = newAdProgress >= 50 && devState.adProgress < 50;
+      
+      setDevModeAdState({
+        adProgress: newAdProgress,
+        lastAdCompletedAt: Date.now(), // Record when ad was completed
+      });
       
       if (isClaimingReward) {
-        // Claiming the 500 coins reward
+        // Claiming the 500 coins reward after all 50 ads watched
         return {
           success: true,
           keysEarned: 50,
@@ -179,7 +253,7 @@ export const completeTask = async (token: string, taskId: string) => {
           isClaim: true,
         };
       } else {
-        // Just watching ads - no rewards yet
+        // Just watched an ad - no rewards yet
         return {
           success: true,
           keysEarned: 0,
@@ -188,7 +262,7 @@ export const completeTask = async (token: string, taskId: string) => {
           newBalance: 512,
           totalKeys: 11,
           totalDiamonds: 5,
-          adProgress: mockAdProgress,
+          adProgress: newAdProgress,
           taskCompleted: false,
           isClaim: false,
         };

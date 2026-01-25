@@ -38,6 +38,17 @@ export function AdsPage({ onNavigate }: AdsPageProps) {
     fetchTasks();
   }, [token]);
 
+  // Refetch tasks when page regains focus (user comes back from another tab/page)
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('Page regained focus, refetching tasks...');
+      fetchTasks();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [token]);
+
   // Timer interval for updating cooldown countdown
   useEffect(() => {
     const interval = setInterval(() => {
@@ -68,6 +79,17 @@ export function AdsPage({ onNavigate }: AdsPageProps) {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Periodically sync with server to ensure cooldown is accurate (every 30 seconds)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (token && !loading) {
+        fetchTasks();
+      }
+    }, 30000); // Refetch every 30 seconds to stay in sync with server
+
+    return () => clearInterval(interval);
+  }, [token, loading]);
 
   const fetchTasks = async () => {
     if (!token) return;

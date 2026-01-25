@@ -44,12 +44,24 @@ export function HomePage({ onNavigate }: HomePageProps) {
         <div className={styles.card}>
           <div className={styles.cardIcon}>✓</div>
           <h3 className={styles.cardTitle}>Complete Tasks</h3>
-          <p className={styles.cardDesc}>Watch ads to earn keys</p>
+          <p className={styles.cardDesc}>Complete tasks to earn coins</p>
           <button
             className={styles.cardButton}
             onClick={() => onNavigate('tasks')}
           >
             Go to Tasks →
+          </button>
+        </div>
+
+        <div className={styles.card}>
+          <div className={styles.cardIcon}>📺</div>
+          <h3 className={styles.cardTitle}>Watch Ads</h3>
+          <p className={styles.cardDesc}>Watch Ads to earn keys</p>
+          <button
+            className={styles.cardButton}
+            onClick={() => onNavigate('ads')}
+          >
+            Go to Ads →
           </button>
         </div>
 
@@ -72,7 +84,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
           <div className={styles.cardIcon}>💰</div>
           <h3 className={styles.cardTitle}>Withdraw Coins</h3>
           <p className={styles.cardDesc}>
-            ${user?.balance || 0} available
+            {user?.balance || 0} coins available
           </p>
           <button
             className={styles.cardButton}
