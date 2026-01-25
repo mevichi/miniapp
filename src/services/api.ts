@@ -106,28 +106,34 @@ export const getTasks = async (token: string) => {
     if (useDevMode()) {
       return [
         {
-          taskId: '1',
-          name: 'Watch Ad 1',
-          description: 'Watch a 30 second ad',
+          taskId: 'task-1',
+          name: 'Watch 50 Ads',
+          description: 'Watch advertisements to earn keys. Progress: X/50',
           reward: 1,
           completed: false,
           type: 'watch_ad',
+          totalAds: 50,
+          adProgress: 5,
+          cooldownRemaining: 0,
+          canRetryAt: null,
         },
         {
-          taskId: '2',
-          name: 'Watch Ad 2',
-          description: 'Watch another ad',
-          reward: 1,
+          taskId: 'task-3',
+          name: 'Daily Bonus',
+          description: 'Complete your daily login to earn 2 keys',
+          reward: 2,
           completed: false,
-          type: 'watch_ad',
+          type: 'daily',
+          canRetryAt: null,
         },
         {
-          taskId: '3',
-          name: 'Referral Bonus',
-          description: 'Invite a friend',
+          taskId: 'task-4',
+          name: 'Share with Friend',
+          description: 'Invite a friend and get 5 keys',
           reward: 5,
           completed: false,
-          type: 'referral',
+          type: 'special',
+          canRetryAt: null,
         },
       ];
     }
@@ -145,7 +151,7 @@ export const getTasks = async (token: string) => {
     }
 
     const data = await response.json();
-    // Expected response: Array<{ taskId, name, description, reward, completed, type }>
+    // Expected response: Array<{ taskId, name, description, reward, completed, type, totalAds, adProgress, cooldownRemaining }>
     return data;
   } catch (error) {
     console.error('Get tasks error:', error);
@@ -160,14 +166,42 @@ export const getTasks = async (token: string) => {
  */
 export const completeTask = async (token: string, taskId: string) => {
   try {
-    // Dev mode: return mock success
+    // Dev mode: return mock success with ad progress
     if (useDevMode()) {
       console.info(`✅ Dev Mode: Task ${taskId} completed (mock)`);
-      return {
-        success: true,
-        keysEarned: 1,
-        newBalance: 511,
-      };
+      // Simulate incrementing ad progress (no rewards per ad)
+      const mockAdProgress = Math.floor(Math.random() * 50) + 1; // Random 1-50 for demo
+      const isClaimingReward = mockAdProgress >= 50; // When all 50 ads watched
+      
+      if (isClaimingReward) {
+        // Claiming the 500 coins reward
+        return {
+          success: true,
+          keysEarned: 50,
+          diamondsEarned: 50,
+          coinsAwarded: 500,
+          newBalance: 1012,
+          totalKeys: 61,
+          totalDiamonds: 55,
+          adProgress: 50,
+          taskCompleted: true,
+          isClaim: true,
+        };
+      } else {
+        // Just watching ads - no rewards yet
+        return {
+          success: true,
+          keysEarned: 0,
+          diamondsEarned: 0,
+          adBonus: 0,
+          newBalance: 512,
+          totalKeys: 11,
+          totalDiamonds: 5,
+          adProgress: mockAdProgress,
+          taskCompleted: false,
+          isClaim: false,
+        };
+      }
     }
 
     const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}/complete`, {
@@ -183,7 +217,8 @@ export const completeTask = async (token: string, taskId: string) => {
     }
 
     const data = await response.json();
-    // Expected response: { success, keysEarned, newBalance }
+    // Expected response: { success, keysEarned, diamondsEarned, coinsAwarded, newBalance, totalKeys, totalDiamonds, adProgress, taskCompleted, isClaim }
+
     return data;
   } catch (error) {
     console.error('Complete task error:', error);

@@ -13,6 +13,9 @@ interface Task {
   completed: boolean;
   type: string;
   canRetryAt?: Date | null;
+  totalAds?: number; // For watch_ad tasks with multiple ads
+  adProgress?: number; // Current progress (0-50)
+  cooldownRemaining?: number; // Seconds until next ad can be watched
 }
 
 export function TasksPage() {
@@ -23,7 +26,8 @@ export function TasksPage() {
   const [adProgress, setAdProgress] = useState(0);
   const [completingTask, setCompletingTask] = useState<string | null>(null);
   const [rewardMessage, setRewardMessage] = useState<{ show: boolean; keysEarned: number; diamondsEarned: number }>({ show: false, keysEarned: 0, diamondsEarned: 0 });
-  const [cooldownTimers, setCooldownTimers] = useState<Record<string, number>>({}); // Minutes remaining for each task
+  const [cooldownTimers, setCooldownTimers] = useState<Record<string, number>>({}); // Seconds remaining for ad cooldowns
+  const [adCooldownTimers, setAdCooldownTimers] = useState<Record<string, number>>({}); // Seconds remaining between ads
 
   useEffect(() => {
     fetchTasks();
@@ -32,17 +36,30 @@ export function TasksPage() {
   // Timer interval for updating cooldown countdown
   useEffect(() => {
     const interval = setInterval(() => {
+      // Update task-level cooldowns (in minutes)
       setCooldownTimers((prev) => {
         const updated = { ...prev };
         Object.keys(updated).forEach((taskId) => {
-          updated[taskId] -= 1;
-          if (updated[taskId] <= 0) {
+          updated[taskId] = Math.max(0, updated[taskId] - 1);
+          if (updated[taskId] === 0) {
             delete updated[taskId];
           }
         });
         return updated;
       });
-    }, 60000); // Update every minute
+
+      // Update ad-level cooldowns (in seconds)
+      setAdCooldownTimers((prev) => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach((taskId) => {
+          updated[taskId] = Math.max(0, updated[taskId] - 1);
+          if (updated[taskId] === 0) {
+            delete updated[taskId];
+          }
+        });
+        return updated;
+      });
+    }, 1000); // Update every second for smooth countdown
 
     return () => clearInterval(interval);
   }, []);
@@ -58,6 +75,8 @@ export function TasksPage() {
 
       // Initialize cooldown timers for tasks that have canRetryAt
       const timers: Record<string, number> = {};
+      const adTimers: Record<string, number> = {};
+
       data.forEach((task: Task) => {
         if (task.canRetryAt) {
           const retryAt = new Date(task.canRetryAt);
@@ -67,8 +86,16 @@ export function TasksPage() {
             timers[task.taskId] = minutesRemaining;
           }
         }
+
+        // Initialize ad cooldown timers for watch_ad tasks
+        if (task.cooldownRemaining && task.cooldownRemaining > 0) {
+          adTimers[task.taskId] = task.cooldownRemaining;
+        }
       });
       setCooldownTimers(timers);
+      if (Object.keys(adTimers).length > 0) {
+        setAdCooldownTimers(adTimers);
+      }
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
     } finally {
@@ -123,31 +150,83 @@ export function TasksPage() {
         setRewardMessage({ show: false, keysEarned: 0, diamondsEarned: 0 });
       }, 3000);
 
-      // Mark task as completed and add cooldown timer
+      // Find the task to update it
       setTasks((prev) =>
-        prev.map((task) =>
-          task.taskId === taskId 
-            ? { ...task, completed: true, canRetryAt: new Date(Date.now() + 60 * 60 * 1000) } 
-            : task
-        )
-      );
+        prev.map((task) => {
+          if (task.taskId === taskId) {
+            // For multi-ad tasks, update progress
+            if (task.type === 'watch_ad' && task.totalAds && task.totalAds > 1) {
+              const newProgress = (task.adProgress || 0) + 1;
+              const isFullyCompleted = newProgress >= (task.totalAds || 50);
 
-      // Set cooldown timer to 60 minutes
-      setCooldownTimers((prev) => ({
-        ...prev,
-        [taskId]: 60,
-      }));
+              // Set 3-minute cooldown for next ad
+              if (!isFullyCompleted) {
+                setAdCooldownTimers((prev) => ({
+                  ...prev,
+                  [taskId]: 180, // 3 minutes in seconds
+                }));
+              } else {
+                // Task fully completed - set 1 hour cooldown
+                setCooldownTimers((prev) => ({
+                  ...prev,
+                  [taskId]: 60, // 60 minutes
+                }));
+              }
+
+              return {
+                ...task,
+                adProgress: newProgress,
+                completed: isFullyCompleted,
+                canRetryAt: isFullyCompleted ? new Date(Date.now() + 60 * 60 * 1000) : task.canRetryAt,
+              };
+            } else {
+              // Single-completion task
+              setCooldownTimers((prev) => ({
+                ...prev,
+                [taskId]: 60,
+              }));
+
+              return {
+                ...task,
+                completed: true,
+                canRetryAt: new Date(Date.now() + 60 * 60 * 1000),
+              };
+            }
+          }
+          return task;
+        })
+      );
 
       // Reset states
       setWatchingAd(null);
       setAdProgress(0);
     } catch (error: any) {
-      // Handle cooldown error
-      if (error.response?.status === 400 && error.response?.data?.canRetryAt) {
+      // Handle 3-minute cooldown error for ad tasks
+      if (error.response?.status === 400 && error.response?.data?.cooldownRemaining) {
+        const secondsRemaining = error.response.data.cooldownRemaining;
+        const adProgress = error.response.data.adProgress || 0;
+
+        setAdCooldownTimers((prev) => ({
+          ...prev,
+          [taskId]: secondsRemaining,
+        }));
+
+        // Show error message
+        setRewardMessage({
+          show: true,
+          keysEarned: 0,
+          diamondsEarned: 0,
+        });
+
+        setTimeout(() => {
+          setRewardMessage({ show: false, keysEarned: 0, diamondsEarned: 0 });
+        }, 3000);
+      } else if (error.response?.status === 400 && error.response?.data?.canRetryAt) {
+        // Handle 1-hour cooldown error for completed tasks
         const retryAt = new Date(error.response.data.canRetryAt);
         const now = new Date();
         const minutesRemaining = Math.ceil((retryAt.getTime() - now.getTime()) / (60 * 1000));
-        
+
         // Update cooldown timer
         setCooldownTimers((prev) => ({
           ...prev,
@@ -264,8 +343,23 @@ export function TasksPage() {
                   <>
                     <div className={styles.taskHeader}>
                       <div>
-                        <h3 className={styles.taskName}>{task.name}</h3>
+                        <h3 className={styles.taskName}>
+                          {task.name}
+                          {task.type === 'watch_ad' && task.totalAds && task.totalAds > 1 && (
+                            <span className={styles.progressLabel}>
+                              {task.adProgress || 0}/{task.totalAds}
+                            </span>
+                          )}
+                        </h3>
                         <p className={styles.taskDesc}>{task.description}</p>
+                        {task.type === 'watch_ad' && task.totalAds && task.totalAds > 1 && (
+                          <div className={styles.progressBarSmall}>
+                            <div
+                              className={styles.progressSmall}
+                              style={{ width: `${((task.adProgress || 0) / task.totalAds) * 100}%` }}
+                            ></div>
+                          </div>
+                        )}
                       </div>
                       {task.completed && !cooldownTimers[task.taskId] && (
                         <span className={styles.completedBadge}>✓ Done</span>
@@ -279,11 +373,33 @@ export function TasksPage() {
 
                     <div className={styles.taskFooter}>
                       <div className={styles.reward}>
-                        <span className={styles.rewardValue}>{task.reward}</span>
-                        <span className={styles.rewardLabel}>🔑</span>
+                        {task.type === 'watch_ad' && task.totalAds && (task.adProgress || 0) >= task.totalAds && !task.completed && (
+                          <div className={styles.claimRewardBox}>
+                            <span className={styles.rewardValue}>500</span>
+                            <span className={styles.rewardLabel}>💰</span>
+                          </div>
+                        )}
+                        {!(task.type === 'watch_ad' && task.totalAds && (task.adProgress || 0) >= task.totalAds && !task.completed) && (
+                          <>
+                            <span className={styles.rewardValue}>{task.reward}</span>
+                            <span className={styles.rewardLabel}>🔑</span>
+                          </>
+                        )}
                       </div>
 
-                      {!task.completed && !cooldownTimers[task.taskId] && (
+                      {/* For multi-ad tasks: show "Claim 500 Coins" when all ads watched */}
+                      {task.type === 'watch_ad' && task.totalAds && task.totalAds > 1 && (task.adProgress || 0) >= task.totalAds && !task.completed && (
+                        <button
+                          className={styles.claimButton}
+                          onClick={() => completeTask(task.taskId)}
+                          disabled={completingTask === task.taskId}
+                        >
+                          {completingTask === task.taskId ? 'Claiming...' : 'Claim 500 💰'}
+                        </button>
+                      )}
+
+                      {/* For multi-ad tasks: show "Watch Ad" while in progress */}
+                      {!task.completed && !cooldownTimers[task.taskId] && !adCooldownTimers[task.taskId] && !(task.type === 'watch_ad' && task.totalAds && (task.adProgress || 0) >= task.totalAds) && (
                         <button
                           className={styles.watchButton}
                           onClick={() => watchAd(task.taskId)}
@@ -291,9 +407,27 @@ export function TasksPage() {
                           Watch Ad
                         </button>
                       )}
-                      {cooldownTimers[task.taskId] && (
+                      {adCooldownTimers[task.taskId] && (
+                        <button className={styles.watchButton} disabled>
+                          Wait {adCooldownTimers[task.taskId]}s
+                        </button>
+                      )}
+                      {!task.completed && cooldownTimers[task.taskId] && (
                         <button className={styles.watchButton} disabled>
                           Available in {cooldownTimers[task.taskId]}m
+                        </button>
+                      )}
+                      {task.completed && cooldownTimers[task.taskId] && (
+                        <button className={styles.watchButton} disabled>
+                          Available in {cooldownTimers[task.taskId]}m
+                        </button>
+                      )}
+                      {task.completed && !cooldownTimers[task.taskId] && !(task.type === 'watch_ad' && task.totalAds) && (
+                        <button
+                          className={styles.watchButton}
+                          onClick={() => watchAd(task.taskId)}
+                        >
+                          Watch Again
                         </button>
                       )}
                     </div>
