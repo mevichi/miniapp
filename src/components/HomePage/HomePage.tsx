@@ -52,7 +52,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
           </button>
         </div>
 
-        <div className={styles.card}>
+        {/* <div className={styles.card}>
           <div className={styles.cardIcon}>🎡</div>
           <h3 className={styles.cardTitle}>Spin the Wheel</h3>
           <p className={styles.cardDesc}>
@@ -65,7 +65,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
           >
             Spin Now →
           </button>
-        </div>
+        </div> */}
 
         <div className={styles.card}>
           <div className={styles.cardIcon}>💰</div>
