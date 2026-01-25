@@ -19,11 +19,11 @@ export function HomePage({ onNavigate }: HomePageProps) {
       </div>
 
       <div className={styles.statsContainer}>
-        <div className={styles.statCard}>
+        {/* <div className={styles.statCard}>
           <div className={styles.statValue}>{user?.totalKeys || 0}</div>
           <div className={styles.statLabel}>🔑 Keys</div>
           <div className={styles.statDesc}>1 key = 1 spin</div>
-        </div>
+        </div> */}
 
         <div className={styles.statCard}>
           <div className={styles.statValue}>{user?.balance || 0}</div>
