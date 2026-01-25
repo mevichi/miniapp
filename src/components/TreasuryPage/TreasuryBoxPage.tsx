@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { useApp } from '@/context/AppContext';
 import { TreasuryBox, type TreasuryReward } from './TreasuryBox';
 import styles from './TreasuryBoxPage.module.css';
+import { PageType } from '@/utils/types';
 
 const KEYS_COST = 3;
 const API_ENDPOINT = 'https://api.solfren.dev/api/treasury/open';
@@ -14,12 +15,16 @@ interface TreasuryState {
   message: string;
 }
 
+interface TreasuryBoxPageProps {
+  onNavigate?: (page: PageType) => void;
+}
+
 /**
  * TreasuryBoxPage Component
  * Players spend 10 keys to open a treasure box
  * Rewards: 20 keys (rare), 5 keys (common), or 10-100 coins
  */
-export function TreasuryBoxPage() {
+export function TreasuryBoxPage({ onNavigate }: TreasuryBoxPageProps) {
   // Context
   const { user, spendKeys, addKeys, updateBalance, addDiamonds, token } = useApp();
 

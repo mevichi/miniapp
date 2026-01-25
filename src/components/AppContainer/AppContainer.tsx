@@ -6,6 +6,7 @@ import { initData } from '@tma.js/sdk-react';
 import { useApp } from '@/context/AppContext';
 import { Navigation } from '@/components/Navigation/Navigation';
 import { HomePage } from '@/components/HomePage/HomePage';
+import { AdsPage } from '@/components/AdsPage/AdsPage';
 import { TasksPage } from '@/components/TasksPage/TasksPage';
 import { WheelPage } from '@/components/WheelPage/WheelPage';
 import { TreasuryBoxPage } from '@/components/TreasuryPage/TreasuryBoxPage';
@@ -69,12 +70,14 @@ export function AppContainer() {
     switch (currentPage) {
       case 'home':
         return <HomePage onNavigate={handleNavigate} />;
+      case 'ads':
+        return <AdsPage onNavigate={handleNavigate} />;
       case 'tasks':
-        return <TasksPage />;
+        return <TasksPage onNavigate={handleNavigate} />;
       case 'wheel':
-        return <WheelPage />;
+        return <WheelPage onNavigate={handleNavigate} />;
       case 'treasury':
-        return <TreasuryBoxPage />;
+        return <TreasuryBoxPage onNavigate={handleNavigate} />;
       case 'wallet':
         return <WalletPage onNavigate={handleNavigate} />;
       case 'profile':

@@ -4,8 +4,8 @@ import { useState } from 'react';
 import styles from './Navigation.module.css';
 
 interface NavigationProps {
-  currentPage: 'home' | 'tasks' | 'wheel' | 'treasury' | 'wallet' | 'profile';
-  onNavigate: (page: 'home' | 'tasks' | 'wheel' | 'treasury' | 'wallet' | 'profile') => void;
+  currentPage: 'home' | 'ads' | 'tasks' | 'wheel' | 'treasury' | 'wallet' | 'profile';
+  onNavigate: (page: 'home' | 'ads' | 'tasks' | 'wheel' | 'treasury' | 'wallet' | 'profile') => void;
 }
 
 export function Navigation({ currentPage, onNavigate }: NavigationProps) {
@@ -18,6 +18,15 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
       >
         <span className={styles.icon}>🏠</span>
         <span className={styles.label}>Home</span>
+      </button>
+
+      <button
+        className={`${styles.navItem} ${currentPage === 'ads' ? styles.active : ''}`}
+        onClick={() => onNavigate('ads')}
+        title="Watch Ads"
+      >
+        <span className={styles.icon}>📺</span>
+        <span className={styles.label}>Ads</span>
       </button>
 
       <button

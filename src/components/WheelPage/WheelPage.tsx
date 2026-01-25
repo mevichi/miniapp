@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { useApp } from '@/context/AppContext';
 import { CustomWheel } from './Wheel';
 import styles from './WheelPage.module.css';
+import { PageType } from '@/utils/types';
 
 // Wheel segments with weights
 const WHEEL_SEGMENTS = [
@@ -26,12 +27,16 @@ interface WheelState {
   message: string;
 }
 
+interface WheelPageProps {
+  onNavigate?: (page: PageType) => void;
+}
+
 /**
  * WheelPage Component
  * Beautiful spinning wheel with weighted segments
  * Users can spin with keys to win coins
  */
-export function WheelPage() {
+export function WheelPage({ onNavigate }: WheelPageProps) {
   // Context
   const { user, spendKeys, updateBalance, addDiamonds, token } = useApp();
 
