@@ -29,7 +29,7 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
         <span className={styles.label}>Tasks</span>
       </button>
 
-      <button
+      {/* <button
         className={`${styles.navItem} ${currentPage === 'wheel' ? styles.active : ''}`}
         onClick={() => onNavigate('wheel')}
         title="Spin Wheel"
@@ -45,7 +45,7 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
       >
         <span className={styles.icon}>🏺</span>
         <span className={styles.label}>Treasury</span>
-      </button>
+      </button> */}
 
 
       <button

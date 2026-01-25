@@ -139,11 +139,11 @@ export function TasksPage() {
       addDiamonds(result.diamondsEarned || 1);
 
       // Show reward message
-      setRewardMessage({
-        show: true,
-        keysEarned: result.keysEarned,
-        diamondsEarned: result.diamondsEarned || 1,
-      });
+      // setRewardMessage({
+      //   show: true,
+      //   keysEarned: result.keysEarned,
+      //   diamondsEarned: result.diamondsEarned || 1,
+      // });
 
       // Hide message after 3 seconds
       setTimeout(() => {
@@ -275,10 +275,10 @@ export function TasksPage() {
       )}
 
       <div className={styles.statsBar}>
-        <div className={styles.stat}>
+        {/* <div className={styles.stat}>
           <span>🔑 Your Keys</span>
           <strong>{user?.totalKeys || 0}</strong>
-        </div>
+        </div> */}
         <div className={styles.stat}>
           <span>💎 Diamonds</span>
           <strong>{user?.totalDiamonds || 0}</strong>
@@ -334,7 +334,7 @@ export function TasksPage() {
                         >
                           {completingTask === task.taskId
                             ? 'Claiming...'
-                            : `Claim ${task.reward} 🔑`}
+                            : `Next Ad`}
                         </button>
                       )}
                     </div>

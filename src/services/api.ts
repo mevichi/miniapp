@@ -108,7 +108,7 @@ export const getTasks = async (token: string) => {
         {
           taskId: 'task-1',
           name: 'Watch 50 Ads',
-          description: 'Watch advertisements to earn keys. Progress: X/50',
+          description: 'Watch advertisements to earn 500 coins',
           reward: 1,
           completed: false,
           type: 'watch_ad',
