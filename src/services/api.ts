@@ -125,16 +125,7 @@ export const getTasks = async (token: string) => {
           completed: false,
           type: 'daily',
           canRetryAt: null,
-        },
-        {
-          taskId: 'task-4',
-          name: 'Share with Friend',
-          description: 'Invite a friend and get 5 keys',
-          reward: 5,
-          completed: false,
-          type: 'special',
-          canRetryAt: null,
-        },
+        }
       ];
     }
 

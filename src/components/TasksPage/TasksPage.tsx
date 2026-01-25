@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import styles from './TasksPage.module.css';
 import { useApp } from '@/context/AppContext';
+import { PageType } from '@/utils/types';
 import * as api from '@/services/api';
 
 interface Task {
@@ -18,7 +19,11 @@ interface Task {
   cooldownRemaining?: number; // Seconds until next ad can be watched
 }
 
-export function TasksPage() {
+interface TasksPageProps {
+  onNavigate?: (page: PageType) => void;
+}
+
+export function TasksPage({ onNavigate }: TasksPageProps) {
   const { user, token, addKeys, addDiamonds } = useApp();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
@@ -438,6 +443,29 @@ export function TasksPage() {
           )}
         </div>
       )}
+
+      {/* Quick Links Section */}
+      <div className={styles.quickLinksSection}>
+        <div className={styles.quickLinksGrid}>
+          <button
+            className={styles.quickLinkCard}
+            onClick={() => onNavigate?.('wheel')}
+          >
+            <div className={styles.quickLinkIcon}>🎡</div>
+            <h3 className={styles.quickLinkTitle}>Spin the Wheel</h3>
+            <p className={styles.quickLinkDesc}>Use your keys to spin and win</p>
+          </button>
+
+          <button
+            className={styles.quickLinkCard}
+            onClick={() => onNavigate?.('treasury')}
+          >
+            <div className={styles.quickLinkIcon}>🏺</div>
+            <h3 className={styles.quickLinkTitle}>Treasury Box</h3>
+            <p className={styles.quickLinkDesc}>Open boxes to get rewards</p>
+          </button>
+        </div>
+      </div>
 
       <div className={styles.infoBox}>
         <h4>💡 Tips</h4>
