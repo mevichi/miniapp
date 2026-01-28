@@ -455,6 +455,118 @@
   font-size: 13px;
 }
 
+.tonConversion {
+  margin-top: 12px;
+  padding: 10px;
+  background: linear-gradient(135deg, #f3e8ff 0%, #fae8ff 100%);
+  border-radius: 8px;
+  font-size: 12px;
+  color: #333;
+  border-left: 3px solid #9333ea;
+}
+
+.tonConversion strong {
+  color: #9333ea;
+  font-weight: 700;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.historyItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.historyItem:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.historyContent {
+  flex: 1;
+}
+
+.historyMain {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.historyAmount {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.historyTon {
+  font-size: 13px;
+  color: #64748b;
+  background: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.historyDetails {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.historyDate {
+  display: block;
+}
+
+.historyStatus {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 12px;
+}
+
+.historyStatus.pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.historyStatus.completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.historyStatus.failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.loading {
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  padding: 20px;
+}
+
+.empty {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 14px;
+  padding: 20px;
+}
+
 @media (max-width: 480px) {
   .container {
     padding: 15px;
@@ -475,5 +587,15 @@
 
   .withdrawForm {
     padding: 12px;
+  }
+
+  .historyItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .historyStatus {
+    margin-left: 0;
+    margin-top: 10px;
   }
 }

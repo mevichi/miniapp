@@ -6,6 +6,14 @@ import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
 import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react';
 
+interface Withdrawal {
+  withdrawalId: string;
+  amount: number;
+  status: 'pending' | 'completed' | 'failed';
+  timestamp: string;
+  transactionId: string;
+}
+
 export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
   const { user, token, refreshUser, connectWallet, withdrawCoins } = useApp();
   const wallet = useTonWallet();
@@ -15,11 +23,40 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
   const [walletInput, setWalletInput] = useState('');
   const [showConnectForm, setShowConnectForm] = useState(false);
   const [connectingTonWallet, setConnectingTonWallet] = useState(false);
+  const [withdrawalHistory, setWithdrawalHistory] = useState<Withdrawal[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   // Sync wallet address from database on page load
   useEffect(() => {
     refreshUser();
   }, [refreshUser]);
+
+  // Fetch withdrawal history
+  useEffect(() => {
+    if (user?.walletAddress) {
+      fetchWithdrawalHistory();
+    }
+  }, [user?.walletAddress]);
+
+  const fetchWithdrawalHistory = async () => {
+    if (!token) return;
+    setLoadingHistory(true);
+    try {
+      const response = await fetch('/api/wallet/withdrawals', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setWithdrawalHistory(data.withdrawals || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch withdrawal history:', error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
 
   const handleConnectWallet = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,6 +152,11 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
   const minDiamonds = 100;
   const totalDiamonds = user?.totalDiamonds || 0;
   const canWithdraw = maxWithdraw >= minWithdraw && user?.walletAddress && totalDiamonds >= minDiamonds;
+
+  // TON conversion: 0.15 TON per 5000 coins
+  const coinsPerTon = 50000;
+  const tonPerCoins = 0.15;
+  const getTonAmount = (coins: number) => ((coins / coinsPerTon) * tonPerCoins).toFixed(3);
 
   return (
     <div className={styles.container}>
@@ -247,6 +289,13 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
                 <span>Min: {minWithdraw}</span>
                 <span>Max: {maxWithdraw}</span>
               </div>
+              {withdrawAmount && (
+                <div className={styles.tonConversion}>
+                  💎 You will receive <strong>{getTonAmount(parseFloat(withdrawAmount))} TON</strong>
+                  <br />
+                  <small>(0.15 TON per 5,000 coins)</small>
+                </div>
+              )}
             </div>
 
             <div className={styles.quickAmount}>
@@ -274,6 +323,51 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
               {loading ? '⏳ Processing...' : '✓ Withdraw'}
             </button>
           </form>
+        </div>
+      )}
+
+      {/* Messages */}
+      {message && (
+        <div className={`${styles.message} ${styles[message.type]}`}>
+          {message.type === 'success' ? '✓' : '⚠️'} {message.text}
+        </div>
+      )}
+
+      {/* Withdrawal History */}
+      {user?.walletAddress && (
+        <div className={styles.section}>
+          <h2 className={styles.sectionTitle}>📋 Withdrawal History</h2>
+          {loadingHistory ? (
+            <p className={styles.loading}>Loading history...</p>
+          ) : withdrawalHistory.length === 0 ? (
+            <p className={styles.empty}>No withdrawals yet</p>
+          ) : (
+            <div className={styles.historyList}>
+              {withdrawalHistory.map((withdrawal) => (
+                <div key={withdrawal.withdrawalId} className={styles.historyItem}>
+                  <div className={styles.historyContent}>
+                    <div className={styles.historyMain}>
+                      <span className={styles.historyAmount}>{withdrawal.amount} 💰</span>
+                      <span className={styles.historyTon}>
+                        {getTonAmount(withdrawal.amount)} TON
+                      </span>
+                    </div>
+                    <div className={styles.historyDetails}>
+                      <span className={styles.historyDate}>
+                        {new Date(withdrawal.timestamp).toLocaleDateString()} {new Date(withdrawal.timestamp).toLocaleTimeString()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className={`${styles.historyStatus} ${styles[withdrawal.status]}`}>
+                    {withdrawal.status === 'pending' && '⏳'}
+                    {withdrawal.status === 'completed' && '✓'}
+                    {withdrawal.status === 'failed' && '✗'}
+                    {withdrawal.status.charAt(0).toUpperCase() + withdrawal.status.slice(1)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
