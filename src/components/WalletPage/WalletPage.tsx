@@ -33,10 +33,10 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
 
   // Fetch withdrawal history
   useEffect(() => {
-    if (user?.walletAddress) {
+    if (token && user?.walletAddress) {
       fetchWithdrawalHistory();
     }
-  }, [user?.walletAddress]);
+  }, [token, user?.walletAddress]);
 
   const fetchWithdrawalHistory = async () => {
     if (!token) return;
@@ -49,7 +49,10 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
       });
       if (response.ok) {
         const data = await response.json();
+        console.log('Withdrawal history fetched:', data.withdrawals);
         setWithdrawalHistory(data.withdrawals || []);
+      } else {
+        console.error('Failed to fetch withdrawals:', response.status);
       }
     } catch (error) {
       console.error('Failed to fetch withdrawal history:', error);
@@ -137,6 +140,8 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
         text: `Successfully withdrawn ${amount} coins!`,
       });
       setWithdrawAmount('');
+      // Refresh withdrawal history after successful withdrawal
+      await fetchWithdrawalHistory();
     } catch (error) {
       setMessage({
         type: 'error',
@@ -154,7 +159,7 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
   const canWithdraw = maxWithdraw >= minWithdraw && user?.walletAddress && totalDiamonds >= minDiamonds;
 
   // TON conversion: 0.15 TON per 5000 coins
-  const coinsPerTon = 50000;
+  const coinsPerTon = 5000;
   const tonPerCoins = 0.15;
   const getTonAmount = (coins: number) => ((coins / coinsPerTon) * tonPerCoins).toFixed(3);
 
