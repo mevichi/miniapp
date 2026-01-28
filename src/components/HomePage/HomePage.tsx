@@ -23,19 +23,16 @@ export function HomePage({ onNavigate }: HomePageProps) {
         <div className={styles.statCard}>
           <div className={styles.statValue}>{user?.balance || 0}</div>
           <div className={styles.statLabel}>💰 Balance</div>
-          <div className={styles.statDesc}>Withdraw to wallet</div>
         </div>
 
         <div className={styles.statCard}>
           <div className={styles.statValue}>{user?.totalKeys || 0}</div>
           <div className={styles.statLabel}>🔑 Keys</div>
-          <div className={styles.statDesc}>1 key = 1 spin</div>
         </div>
 
         <div className={styles.statCard}>
           <div className={styles.statValue}>{user?.totalDiamonds || 0}</div>
           <div className={styles.statLabel}>💎 Diamonds</div>
-          <div className={styles.statDesc}>Activity tracker</div>
         </div>
 
       </div>

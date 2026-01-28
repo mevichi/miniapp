@@ -4,14 +4,17 @@ import { useState } from 'react';
 import styles from './WalletPage.module.css';
 import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
+import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react';
 
 export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
   const { user, token, connectWallet, withdrawCoins } = useApp();
+  const wallet = useTonWallet();
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [walletInput, setWalletInput] = useState('');
   const [showConnectForm, setShowConnectForm] = useState(false);
+  const [connectingTonWallet, setConnectingTonWallet] = useState(false);
 
   const handleConnectWallet = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +36,35 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleConnectTonWallet = async () => {
+    if (!wallet) {
+      setMessage({ type: 'error', text: 'Please connect a TON wallet first' });
+      return;
+    }
+
+    setConnectingTonWallet(true);
+    try {
+      const walletAddress = wallet.account?.address || '';
+      if (!walletAddress) {
+        setMessage({ type: 'error', text: 'Unable to retrieve wallet address' });
+        return;
+      }
+
+      // Format the wallet address (remove network prefix if present)
+      const formattedAddress = walletAddress.split(':').pop() || walletAddress;
+      
+      await connectWallet(formattedAddress);
+      setMessage({ type: 'success', text: 'TON wallet connected successfully!' });
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Failed to connect TON wallet',
+      });
+    } finally {
+      setConnectingTonWallet(false);
     }
   };
 
@@ -109,42 +141,68 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
           </div>
         ) : (
           <div>
-            {!showConnectForm ? (
-              <button
-                className={styles.connectButton}
-                onClick={() => setShowConnectForm(true)}
-              >
-                🔗 Connect TON Wallet
-              </button>
-            ) : (
-              <form onSubmit={handleConnectWallet} className={styles.connectForm}>
-                <input
-                  type="text"
-                  placeholder="Enter your TON wallet address"
-                  value={walletInput}
-                  onChange={(e) => setWalletInput(e.target.value)}
-                  className={styles.input}
-                  disabled={loading}
-                />
-                <div className={styles.formButtons}>
-                  <button
-                    type="submit"
-                    className={styles.submitButton}
-                    disabled={loading || !walletInput.trim()}
-                  >
-                    {loading ? 'Connecting...' : 'Connect'}
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.cancelButton}
-                    onClick={() => setShowConnectForm(false)}
-                    disabled={loading}
-                  >
-                    Cancel
-                  </button>
+            <div className={styles.connectionMethods}>
+              {/* TonConnect Native Method */}
+              <div className={styles.connectionMethod}>
+                <h3 className={styles.methodTitle}>🔗 Connect with TON Wallet</h3>
+                <p className={styles.methodDescription}>Use your native TON wallet (Tonkeeper, TonHub, etc.)</p>
+                <div className={styles.tonConnectButtonWrapper}>
+                  <TonConnectButton />
                 </div>
-              </form>
-            )}
+                {wallet && (
+                  <button
+                    className={styles.useConnectedButton}
+                    onClick={handleConnectTonWallet}
+                    disabled={connectingTonWallet || loading}
+                  >
+                    {connectingTonWallet ? 'Connecting...' : '✓ Use This Wallet'}
+                  </button>
+                )}
+              </div>
+
+              {/* Manual Entry Method */}
+              <div className={styles.divider}>or</div>
+              <div className={styles.connectionMethod}>
+                <h3 className={styles.methodTitle}>📝 Enter Manually</h3>
+                <p className={styles.methodDescription}>Paste your wallet address directly</p>
+                {!showConnectForm ? (
+                  <button
+                    className={styles.connectButton}
+                    onClick={() => setShowConnectForm(true)}
+                  >
+                    Enter Wallet Address
+                  </button>
+                ) : (
+                  <form onSubmit={handleConnectWallet} className={styles.connectForm}>
+                    <input
+                      type="text"
+                      placeholder="Enter your TON wallet address"
+                      value={walletInput}
+                      onChange={(e) => setWalletInput(e.target.value)}
+                      className={styles.input}
+                      disabled={loading}
+                    />
+                    <div className={styles.formButtons}>
+                      <button
+                        type="submit"
+                        className={styles.submitButton}
+                        disabled={loading || !walletInput.trim()}
+                      >
+                        {loading ? 'Connecting...' : 'Connect'}
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.cancelButton}
+                        onClick={() => setShowConnectForm(false)}
+                        disabled={loading}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>

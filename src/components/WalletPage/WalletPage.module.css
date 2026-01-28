@@ -144,6 +144,82 @@
   font-family: monospace;
 }
 
+.connectionMethods {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.connectionMethod {
+  background: white;
+  border: 2px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 18px;
+  transition: all 0.3s ease;
+}
+
+.connectionMethod:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.methodTitle {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+}
+
+.methodDescription {
+  margin: 0 0 14px 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.tonConnectButtonWrapper {
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.tonConnectButtonWrapper :global(.tonconnect-button__button) {
+  width: 100%;
+  border-radius: 10px !important;
+}
+
+.useConnectedButton {
+  width: 100%;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+}
+
+.useConnectedButton:hover:not(:disabled) {
+  background: #45a049;
+  transform: translateY(-2px);
+}
+
+.useConnectedButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.divider {
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 0;
+  margin: 8px 0;
+}
+
 .connectButton {
   width: 100%;
   background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);

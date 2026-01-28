@@ -297,7 +297,7 @@ export function AdsPage({ onNavigate }: AdsPageProps) {
             <span className={styles.rewardEmoji}>✓</span>
             <div>
               <strong>Task Completed!</strong>
-              <p>+{rewardMessage.keysEarned} 🔑 Keys + {rewardMessage.diamondsEarned} 💎 Diamonds</p>
+              <p>+{rewardMessage.keysEarned} 🔑 Keys</p>
             </div>
           </div>
         </div>
@@ -308,6 +308,10 @@ export function AdsPage({ onNavigate }: AdsPageProps) {
           <span>🔑 Your Keys</span>
           <strong>{user?.totalKeys || 0}</strong>
         </div> */}
+        <div className={styles.stat}>
+          <span>💰 Coins</span>
+          <strong>{user?.balance || 0}</strong>
+        </div>
         <div className={styles.stat}>
           <span>💎 Diamonds</span>
           <strong>{user?.totalDiamonds || 0}</strong>
