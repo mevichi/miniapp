@@ -106,7 +106,7 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
   };
 
   const maxWithdraw = user?.balance || 0;
-  const minWithdraw = 10;
+  const minWithdraw = 50000;
   const minDiamonds = 100;
   const totalDiamonds = user?.totalDiamonds || 0;
   const canWithdraw = maxWithdraw >= minWithdraw && user?.walletAddress && totalDiamonds >= minDiamonds;
@@ -247,7 +247,7 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
             <div className={styles.quickAmount}>
               <p>Quick amounts:</p>
               <div className={styles.quickButtons}>
-                {[10, 50, 100].map((amt) => (
+                {[50000, 100000, 150000].map((amt) => (
                   <button
                     key={amt}
                     type="button"
