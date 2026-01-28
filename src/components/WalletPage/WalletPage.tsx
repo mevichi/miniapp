@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './WalletPage.module.css';
 import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
 import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react';
 
 export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
-  const { user, token, connectWallet, withdrawCoins } = useApp();
+  const { user, token, refreshUser, connectWallet, withdrawCoins } = useApp();
   const wallet = useTonWallet();
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,6 +15,11 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
   const [walletInput, setWalletInput] = useState('');
   const [showConnectForm, setShowConnectForm] = useState(false);
   const [connectingTonWallet, setConnectingTonWallet] = useState(false);
+
+  // Sync wallet address from database on page load
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
 
   const handleConnectWallet = async (e: React.FormEvent) => {
     e.preventDefault();

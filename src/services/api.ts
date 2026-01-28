@@ -119,6 +119,7 @@ export const getUserProfile = async (token: string) => {
         totalKeys: 10,
         totalSpins: 0,
         wins: 0,
+        walletAddress: undefined,
       };
     }
 
@@ -135,7 +136,7 @@ export const getUserProfile = async (token: string) => {
     }
 
     const data = await response.json();
-    // Expected response: { userId, username, balance, totalKeys, totalSpins, wins }
+    // Expected response: { userId, username, balance, totalKeys, totalSpins, wins, walletAddress }
     return data;
   } catch (error) {
     console.error('Get profile error:', error);
