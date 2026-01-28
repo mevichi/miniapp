@@ -14,8 +14,8 @@ export function HomePage({ onNavigate }: HomePageProps) {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Gold Rush</h1>
-        <p className={styles.subtitle}>Earn tokens • Spin to win • Withdraw to wallet</p>
+        <h1 className={styles.title}>💰 Coinly</h1>
+        <p className={styles.subtitle}>Earn coins • Spin to win • Withdraw to wallet</p>
       </div>
 
       <div className={styles.statsContainer}>

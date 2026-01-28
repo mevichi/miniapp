@@ -10,8 +10,8 @@ import 'normalize.css/normalize.css';
 import './_assets/globals.css';
 
 export const metadata: Metadata = {
-  title: 'Your Application Title Goes Here',
-  description: 'Your application description goes here',
+  title: 'Coinly - Earn Coins & Win Rewards',
+  description: 'Coinly: Complete tasks, spin to win, and withdraw to your TON wallet. Earn coins and diamonds daily!',
 };
 
 export default async function RootLayout({ children }: PropsWithChildren) {
