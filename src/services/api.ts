@@ -240,29 +240,29 @@ export const completeTask = async (token: string, taskId: string) => {
       });
       
       if (isClaimingReward) {
-        // Claiming the 500 coins reward after all 50 ads watched
+        // Just watched the 50th ad - award 500 coins automatically
         return {
           success: true,
-          keysEarned: 50,
-          diamondsEarned: 50,
+          keysEarned: 1,
+          diamondsEarned: 1,
           coinsAwarded: 500,
           newBalance: 1012,
           totalKeys: 61,
           totalDiamonds: 55,
           adProgress: 50,
           taskCompleted: true,
-          isClaim: true,
+          isClaim: false,
         };
       } else {
-        // Just watched an ad - no rewards yet
+        // Just watched an ad - earn 1 key + 1 diamond per ad
         return {
           success: true,
-          keysEarned: 0,
-          diamondsEarned: 0,
+          keysEarned: 1,
+          diamondsEarned: 1,
           adBonus: 0,
           newBalance: 512,
-          totalKeys: 11,
-          totalDiamonds: 5,
+          totalKeys: 12,
+          totalDiamonds: 6,
           adProgress: newAdProgress,
           taskCompleted: false,
           isClaim: false,
