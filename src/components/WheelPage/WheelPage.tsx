@@ -8,12 +8,13 @@ import { PageType } from '@/utils/types';
 
 // Wheel segments with weights
 const WHEEL_SEGMENTS = [
-  { label: '10', value: 10, weight: 1 },
-  { label: '20', value: 20, weight: 1 },
-  { label: '50', value: 50, weight: 0.5 }, // Harder to win
-  { label: 'Nothing', value: 0, weight: 1.5 }, // More likely
-  { label: '5', value: 5, weight: 1 },
-  { label: '100', value: 100, weight: 0.3 }, // Rare!
+  { label: '1', value: 1, weight: 30 },    // 30% - Most common
+  { label: '2', value: 2, weight: 25 },    // 25%
+  { label: '5', value: 5, weight: 20 },    // 20%
+  { label: '10', value: 10, weight: 10 },  // 10%
+  { label: '20', value: 20, weight: 5 },   // 5%
+  { label: '50', value: 50, weight: 1 },   // 1% - Rare!
+  { label: 'Nothing', value: 0, weight: 9 }, // 9% - Miss
 ];
 
 const KEYS_PER_SPIN = 1;
