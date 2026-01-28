@@ -16,12 +16,10 @@ interface UserTask {
   type: TaskType;
   description: string;
   url: string;
-  createdBy: string;
   completionReward: {
     users: number;
     ton: number;
   };
-  completions: number;
 }
 
 const TASK_TYPE_LABELS: Record<TaskType, string> = {
@@ -53,7 +51,8 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
   // Task List state
   const [userTasks, setUserTasks] = useState<UserTask[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(false);
-  const [completing, setCompleting] = useState<string | null>(null);
+  const [openedTasks, setOpenedTasks] = useState<Set<string>>(new Set());
+  const [claimingTask, setClaimingTask] = useState<string | null>(null);
   const [completeMessage, setCompleteMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
@@ -145,13 +144,16 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
     }
   };
 
-  const handleCompleteTask = async (taskId: string, taskUrl: string) => {
-    setCompleting(taskId);
-    try {
-      // Open the task link in a new window
-      window.open(taskUrl, '_blank');
+  const handleOpenTask = (taskId: string, taskUrl: string) => {
+    // Open the task link in a new window
+    window.open(taskUrl, '_blank');
+    // Mark this task as opened
+    setOpenedTasks(prev => new Set(prev).add(taskId));
+  };
 
-      // Call backend to mark task complete
+  const handleClaimTask = async (taskId: string) => {
+    setClaimingTask(taskId);
+    try {
       const response = await fetch(
         `https://api.solfren.dev/api/user-tasks/${taskId}/complete`,
         {
@@ -170,16 +172,18 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
         });
         // Refresh task list
         await fetchTasks();
+        // Reset opened tasks
+        setOpenedTasks(new Set());
       } else {
-        throw new Error('Failed to complete task');
+        throw new Error('Failed to claim task');
       }
     } catch (error) {
       setCompleteMessage({
         type: 'error',
-        text: error instanceof Error ? error.message : 'Failed to complete task',
+        text: error instanceof Error ? error.message : 'Failed to claim task',
       });
     } finally {
-      setCompleting(null);
+      setClaimingTask(null);
     }
   };
 
@@ -282,29 +286,25 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
                   </div>
 
                   <div className={styles.taskMeta}>
-                    <p className={styles.createdBy}>by {task.createdBy}</p>
                     <p className={styles.reward}>💰 Earn <strong>50 coins</strong></p>
                   </div>
 
-                  <div className={styles.progressBar}>
-                    <div
-                      className={styles.progress}
-                      style={{
-                        width: `${Math.min((task.completions / task.completionReward.users) * 100, 100)}%`,
-                      }}
-                    />
-                  </div>
-                  <p className={styles.progressText}>
-                    {task.completions}/{task.completionReward.users} completions
-                  </p>
-
-                  <button
-                    className={styles.completeButton}
-                    onClick={() => handleCompleteTask(task.taskId, task.url)}
-                    disabled={completing === task.taskId}
-                  >
-                    {completing === task.taskId ? '⏳ Opening...' : '✓ Complete Task'}
-                  </button>
+                  {!openedTasks.has(task.taskId) ? (
+                    <button
+                      className={styles.completeButton}
+                      onClick={() => handleOpenTask(task.taskId, task.url)}
+                    >
+                      🔗 Open Task
+                    </button>
+                  ) : (
+                    <button
+                      className={styles.completeButton}
+                      onClick={() => handleClaimTask(task.taskId)}
+                      disabled={claimingTask === task.taskId}
+                    >
+                      {claimingTask === task.taskId ? '⏳ Claiming...' : '✅ Claim Reward'}
+                    </button>
+                  )}
                 </div>
               ))
             )}
