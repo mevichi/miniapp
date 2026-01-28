@@ -150,8 +150,8 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
   const totalDiamonds = user?.totalDiamonds || 0;
   const canWithdraw = maxWithdraw >= minWithdraw && user?.walletAddress && totalDiamonds >= minDiamonds;
 
-  // TON conversion: 0.15 TON per 5000 coins
-  const coinsPerTon = 5000;
+  // TON conversion: 0.15 TON per 50000 coins
+  const coinsPerTon = 50000;
   const tonPerCoins = 0.15;
   const getTonAmount = (coins: number) => ((coins / coinsPerTon) * tonPerCoins).toFixed(3);
 
@@ -290,7 +290,7 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
                 <div className={styles.tonConversion}>
                   💎 You will receive <strong>{getTonAmount(parseFloat(withdrawAmount))} TON</strong>
                   <br />
-                  <small>(0.15 TON per 5,000 coins)</small>
+                  <small>(0.15 TON per 50,000 coins)</small>
                 </div>
               )}
             </div>
