@@ -6,7 +6,7 @@ import { TreasuryBox, type TreasuryReward } from './TreasuryBox';
 import styles from './TreasuryBoxPage.module.css';
 import { PageType } from '@/utils/types';
 
-const KEYS_COST = 3;
+const KEYS_COST = 5;
 const API_ENDPOINT = 'https://api.solfren.dev/api/treasury/open';
 
 interface TreasuryState {
@@ -132,8 +132,8 @@ export function TreasuryBoxPage({ onNavigate }: TreasuryBoxPageProps) {
     <div className={styles.treasuryContainer}>
       {/* Header Section */}
       <header className={styles.header}>
-        <h1>🏺 Treasure Box</h1>
-        <p className={styles.subtitle}>Spend {KEYS_COST} keys to open and discover treasures!</p>
+        <h1>5️⃣ 🎁 Treasury box</h1>
+        <p className={styles.subtitle}>Create dopamine, not value. Spend {KEYS_COST} keys to open and discover treasures!</p>
       </header>
 
       {/* Stats Section */}
@@ -154,19 +154,39 @@ export function TreasuryBoxPage({ onNavigate }: TreasuryBoxPageProps) {
 
       {/* Rewards Info */}
       <section className={styles.rewardsInfo}>
-        <h3>Possible Rewards</h3>
+        <h3>Possible Rewards (SAFE)</h3>
         <div className={styles.rewardsList}>
           <div className={styles.rewardItem}>
-            <span className={styles.rewardIcon}>🔑</span>
-            <span className={styles.rewardText}>20 Keys (Rare)</span>
+            <span className={styles.rewardIcon}>1 🪙</span>
+            <span className={styles.rewardText}>30%</span>
           </div>
           <div className={styles.rewardItem}>
-            <span className={styles.rewardIcon}>🪙</span>
-            <span className={styles.rewardText}>10-100 Coins</span>
+            <span className={styles.rewardIcon}>5 🪙</span>
+            <span className={styles.rewardText}>25%</span>
           </div>
           <div className={styles.rewardItem}>
-            <span className={styles.rewardIcon}>✨</span>
-            <span className={styles.rewardText}>5 Keys (Common)</span>
+            <span className={styles.rewardIcon}>10 🪙</span>
+            <span className={styles.rewardText}>20%</span>
+          </div>
+          <div className={styles.rewardItem}>
+            <span className={styles.rewardIcon}>25 🪙</span>
+            <span className={styles.rewardText}>10%</span>
+          </div>
+          <div className={styles.rewardItem}>
+            <span className={styles.rewardIcon}>50 🪙</span>
+            <span className={styles.rewardText}>5%</span>
+          </div>
+          <div className={styles.rewardItem}>
+            <span className={styles.rewardIcon}>1 🔑</span>
+            <span className={styles.rewardText}>7%</span>
+          </div>
+          <div className={styles.rewardItem}>
+            <span className={styles.rewardIcon}>2 🔑</span>
+            <span className={styles.rewardText}>2%</span>
+          </div>
+          <div className={styles.rewardItem}>
+            <span className={styles.rewardIcon}>5 🔑</span>
+            <span className={styles.rewardText}>1%</span>
           </div>
         </div>
       </section>

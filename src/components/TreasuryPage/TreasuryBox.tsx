@@ -17,9 +17,14 @@ interface TreasuryBoxProps {
 }
 
 const REWARDS: TreasuryReward[] = [
-  { type: 'keys', amount: 20, weight: 1, label: '20 Keys' },
-  { type: 'keys', amount: 5, weight: 8, label: '5 Keys' },
-  { type: 'coins', amount: Math.floor(Math.random() * 91) + 10, weight: 1, label: '10-100 Coins' },
+  { type: 'coins', amount: 1, weight: 30, label: '1 Coin' },      // 30%
+  { type: 'coins', amount: 5, weight: 25, label: '5 Coins' },     // 25%
+  { type: 'coins', amount: 10, weight: 20, label: '10 Coins' },   // 20%
+  { type: 'coins', amount: 25, weight: 10, label: '25 Coins' },   // 10%
+  { type: 'coins', amount: 50, weight: 5, label: '50 Coins' },    // 5%
+  { type: 'keys', amount: 1, weight: 7, label: '1 Key' },         // 7%
+  { type: 'keys', amount: 2, weight: 2, label: '2 Keys' },        // 2%
+  { type: 'keys', amount: 5, weight: 1, label: '5 Keys' },        // 1%
 ];
 
 export const TreasuryBox: React.FC<TreasuryBoxProps> = ({
@@ -43,9 +48,6 @@ export const TreasuryBox: React.FC<TreasuryBoxProps> = ({
     for (const reward of rewards) {
       random -= reward.weight;
       if (random <= 0) {
-        if (reward.type === 'coins') {
-          return { ...reward, amount: Math.floor(Math.random() * 91) + 10 };
-        }
         return reward;
       }
     }
