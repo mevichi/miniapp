@@ -21,6 +21,17 @@
   }
 }
 
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .title {
   font-size: 32px;
   font-weight: 800;
@@ -39,88 +50,294 @@
   font-weight: 500;
 }
 
-.rewardNotification {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+/* Tab Navigation */
+.tabNavigation {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: #f5f5f5;
   border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 20px;
-  color: white;
-  animation: slideDown 0.4s ease-out;
+  padding: 4px;
 }
 
-.rewardContent {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.rewardEmoji {
-  font-size: 28px;
-  display: flex;
-  align-items: center;
-}
-
-.rewardNotification strong {
-  display: block;
-  font-size: 16px;
-  margin-bottom: 4px;
-}
-
-.rewardNotification p {
-  margin: 2px 0;
-  font-size: 14px;
+.tab {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #666;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
 }
 
-.statsBar {
+.tab:hover {
+  background: rgba(59, 130, 246, 0.08);
+  color: #3b82f6;
+}
+
+.tab.active {
+  background: white;
+  color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.12);
+}
+
+/* Missions Content */
+.missionsContent {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  flex-direction: column;
+  gap: 20px;
   animation: slideUp 0.6s ease-out 0.1s both;
 }
 
-.stat {
-  flex: 1;
-  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-  border-radius: 12px;
-  padding: 12px;
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.missionCard {
+  background: white;
+  border-radius: 16px;
+  border: 2px solid #f0f0f0;
+  overflow: hidden;
+  animation: slideUp 0.6s ease-out;
+}
+
+.missionCardHeader {
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(96, 165, 250, 0.08) 100%);
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.missionCardHeader h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+.missionCardDesc {
+  margin: 4px 0 0 0;
   font-size: 13px;
+  color: #999;
 }
 
-.stat span {
-  font-weight: 500;
+/* Tasks Content */
+.tasksContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: slideUp 0.6s ease-out 0.1s both;
 }
 
-.stat strong {
-  font-size: 20px;
-  font-weight: 800;
+.taskCreationSection {
+  background: white;
+  border-radius: 16px;
+  border: 2px solid #f0f0f0;
+  padding: 20px;
+}
+
+.sectionTitle {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+}
+
+.taskForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.input,
+.select,
+.textarea {
+  border: 2px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.hint {
+  font-size: 12px;
+  color: #999;
+}
+
+.charCount {
+  font-size: 12px;
+  color: #999;
+  text-align: right;
+}
+
+.completionOptions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.optionButton {
+  padding: 12px;
+  border: 2px solid #e5e5e5;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.optionButton:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.selectedOption {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(96, 165, 250, 0.08) 100%);
+  color: #3b82f6;
+}
+
+.rewardBox {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(96, 165, 250, 0.08) 100%);
+  border-left: 4px solid #3b82f6;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.rewardBox h4 {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+}
+
+.rewardText {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.rewardSubtext {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #999;
+}
+
+.costText {
+  margin: 0;
+  font-size: 13px;
+  color: #e53e3e;
+  font-weight: 600;
+}
+
+.message {
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.message.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.message.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.submitButton {
+  padding: 14px;
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.availableTasksSection {
+  background: white;
+  border-radius: 16px;
+  border: 2px solid #f0f0f0;
+  padding: 20px;
 }
 
 .tasksList {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+}
+
+.emptySubtext {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+  color: #bbb;
 }
 
 .taskCard {
   background: white;
-  border-radius: 16px;
-  padding: 16px;
   border: 2px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 16px;
   transition: all 0.3s ease;
-  animation: slideUp 0.6s ease-out 0.2s both;
 }
 
 .taskCard:hover {
   border-color: #3b82f6;
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
-.taskHeader {
+.taskCardHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -128,422 +345,89 @@
   margin-bottom: 12px;
 }
 
-.taskName {
-  font-size: 16px;
+.taskTitle {
+  margin: 0;
+  font-size: 14px;
   font-weight: 700;
-  margin: 0 0 4px 0;
   color: #333;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  flex: 1;
 }
 
-.progressLabel {
-  font-size: 13px;
-  font-weight: 600;
+.taskTypeBadge {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(96, 165, 250, 0.12) 100%);
   color: #3b82f6;
-  background: rgba(59, 130, 246, 0.1);
-  padding: 2px 8px;
-  border-radius: 12px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
-.taskDesc {
-  font-size: 13px;
+.taskMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+
+.createdBy {
+  margin: 0;
   color: #999;
-  margin: 0 0 8px 0;
 }
 
-.progressBarSmall {
+.reward {
+  margin: 0;
+  color: #666;
+  font-weight: 600;
+}
+
+.progressBar {
   width: 100%;
   height: 6px;
   background: #f0f0f0;
   border-radius: 3px;
   overflow: hidden;
-  margin-top: 6px;
-}
-
-.progressSmall {
-  height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
-  border-radius: 3px;
-  transition: width 0.3s ease;
-}
-
-.completedBadge {
-  background: #4CAF50;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.cooldownBadge {
-  background: #fbbf24;
-  color: #78350f;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.taskFooter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.reward {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(59, 130, 246, 0.08);
-  padding: 8px 12px;
-  border-radius: 10px;
-}
-
-.claimRewardBox {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: #78350f;
-  padding: 8px 12px;
-  border-radius: 10px;
-}
-
-.rewardValue {
-  font-weight: 700;
-  color: #3b82f6;
-  font-size: 16px;
-}
-
-.claimRewardBox .rewardValue {
-  color: #78350f;
-}
-
-.rewardLabel {
-  font-size: 18px;
-}
-
-.watchButton {
-  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.watchButton:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.25);
-}
-
-.watchButton:active:not(:disabled) {
-  transform: scale(0.95);
-}
-
-.watchButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.claimButton {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: #78350f;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.claimButton:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.25);
-}
-
-.claimButton:active:not(:disabled) {
-  transform: scale(0.95);
-}
-
-.claimButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.adContainer {
-  position: relative;
-}
-
-.adBox {
-  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-  border-radius: 12px;
-  overflow: hidden;
-  padding: 16px;
-  color: white;
-}
-
-.adHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  font-weight: 600;
-  font-size: 13px;
-}
-
-.timer {
-  background: rgba(255, 255, 255, 0.3);
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 12px;
-}
-
-.adContent {
-  margin-bottom: 12px;
-}
-
-.adPlaceholder {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  padding: 40px 20px;
-  text-align: center;
-  min-height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 500;
-}
-
-.progressBar {
-  width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .progress {
   height: 100%;
-  background: linear-gradient(90deg, #FFD700, #FFA500);
-  transition: width 0.1s linear;
-  border-radius: 4px;
+  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+  transition: width 0.3s ease;
 }
 
-.claimButton {
-  width: 100%;
-  background: #FFD700;
-  color: #333;
-  border: none;
-  border-radius: 8px;
-  padding: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
-}
-
-.claimButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
-}
-
-.claimButton:disabled {
-  opacity: 0.8;
-  cursor: not-allowed;
-}
-
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 60px 20px;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(59, 130, 246, 0.2);
-  border-top-color: #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.empty {
-  text-align: center;
-  padding: 60px 20px;
-}
-
-.empty p {
-  color: #999;
-  font-size: 14px;
-}
-
-.infoBox {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(96, 165, 250, 0.08) 100%);
-  border-left: 4px solid #3b82f6;
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 20px;
-}
-
-.infoBox h4 {
-  margin: 0 0 10px 0;
-  color: #333;
-  font-size: 14px;
-}
-
-.infoBox ul {
-  margin: 0;
-  padding-left: 20px;
-  color: #666;
-  font-size: 12px;
-}
-
-.infoBox li {
-  margin-bottom: 6px;
-}
-
-.quickLinksSection {
-  margin-top: 25px;
-  animation: slideUp 0.6s ease-out 0.3s both;
-}
-
-.activitiesTitle {
-  font-size: 16px;
-  font-weight: 700;
-  color: #333;
+.progressText {
   margin: 0 0 12px 0;
-}
-
-.quickLinksGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.quickLinkCard {
-  background: white;
-  border: 2px solid #f0f0f0;
-  border-radius: 12px;
-  padding: 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.quickLinkCard:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-  transform: translateY(-2px);
-}
-
-.quickLinkCard:active {
-  transform: scale(0.98);
-}
-
-.quickLinkIcon {
-  font-size: 32px;
-}
-
-.quickLinkTitle {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 700;
-  color: #333;
-}
-
-.quickLinkDesc {
-  margin: 0;
   font-size: 11px;
   color: #999;
 }
 
-.adSection {
-  margin-top: 25px;
-  animation: slideUp 0.6s ease-out 0.4s both;
-}
-
-.adSectionTitle {
-  font-size: 16px;
-  font-weight: 700;
-  color: #333;
-  margin: 0 0 12px 0;
-}
-
-.adCard {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(96, 165, 250, 0.08) 100%);
-  border: 2px solid #3b82f6;
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.completeButton {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  width: 100%;
 }
 
-.adCard:hover {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(96, 165, 250, 0.15) 100%);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-  transform: translateX(4px);
+.completeButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
 }
 
-.adCard:active {
-  transform: scale(0.98);
+.completeButton:active:not(:disabled) {
+  transform: translateY(0);
 }
 
-.adCardIcon {
-  font-size: 28px;
-}
-
-.adCardContent {
-  flex: 1;
-  text-align: left;
-}
-
-.adCardTitle {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 700;
-  color: #333;
-}
-
-.adCardDesc {
-  margin: 4px 0 0 0;
-  font-size: 12px;
-  color: #999;
-}
-
-.adCardArrow {
-  font-size: 20px;
-  color: #3b82f6;
-  font-weight: 700;
+.completeButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 @media (max-width: 480px) {
@@ -556,16 +440,11 @@
     font-size: 28px;
   }
 
-  .taskCard {
-    padding: 12px;
+  .completionOptions {
+    grid-template-columns: 1fr;
   }
 
-  .taskName {
-    font-size: 14px;
-  }
-
-  .adPlaceholder {
-    min-height: 100px;
-    padding: 30px 15px;
+  .taskCardHeader {
+    flex-direction: column;
   }
 }

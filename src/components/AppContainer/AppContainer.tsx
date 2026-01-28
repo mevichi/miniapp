@@ -8,8 +8,6 @@ import { Navigation } from '@/components/Navigation/Navigation';
 import { HomePage } from '@/components/HomePage/HomePage';
 import { AdsPage } from '@/components/AdsPage/AdsPage';
 import { TasksPage } from '@/components/TasksPage/TasksPage';
-import { WheelPage } from '@/components/WheelPage/WheelPage';
-import { TreasuryBoxPage } from '@/components/TreasuryPage/TreasuryBoxPage';
 import { WalletPage } from '@/components/WalletPage/WalletPage';
 import { ProfilePage } from '@/components/ProfilePage/ProfilePage';
 import styles from './AppContainer.module.css';
@@ -74,10 +72,6 @@ export function AppContainer() {
         return <AdsPage onNavigate={handleNavigate} />;
       case 'tasks':
         return <TasksPage onNavigate={handleNavigate} />;
-      case 'wheel':
-        return <WheelPage onNavigate={handleNavigate} />;
-      case 'treasury':
-        return <TreasuryBoxPage onNavigate={handleNavigate} />;
       case 'wallet':
         return <WalletPage onNavigate={handleNavigate} />;
       case 'profile':

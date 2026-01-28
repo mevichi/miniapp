@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import styles from './Navigation.module.css';
+import { PageType } from '@/utils/types';
 
 interface NavigationProps {
-  currentPage: 'home' | 'ads' | 'tasks' | 'wheel' | 'treasury' | 'wallet' | 'profile';
-  onNavigate: (page: 'home' | 'ads' | 'tasks' | 'wheel' | 'treasury' | 'wallet' | 'profile') => void;
+  currentPage: PageType;
+  onNavigate: (page: PageType) => void;
 }
 
 export function Navigation({ currentPage, onNavigate }: NavigationProps) {
@@ -32,30 +33,20 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
       <button
         className={`${styles.navItem} ${currentPage === 'tasks' ? styles.active : ''}`}
         onClick={() => onNavigate('tasks')}
-        title="Tasks"
+        title="Tasks & Missions"
       >
-        <span className={styles.icon}>✓</span>
+        <span className={styles.icon}>🎮</span>
         <span className={styles.label}>Tasks</span>
       </button>
 
-      {/* <button
-        className={`${styles.navItem} ${currentPage === 'wheel' ? styles.active : ''}`}
-        onClick={() => onNavigate('wheel')}
-        title="Spin Wheel"
-      >
-        <span className={styles.icon}>🎡</span>
-        <span className={styles.label}>Wheel</span>
-      </button>
-
       <button
-        className={`${styles.navItem} ${currentPage === 'treasury' ? styles.active : ''}`}
-        onClick={() => onNavigate('treasury')}
-        title="Treasury"
+        className={`${styles.navItem} ${currentPage === 'wallet' ? styles.active : ''}`}
+        onClick={() => onNavigate('wallet')}
+        title="Wallet"
       >
-        <span className={styles.icon}>🏺</span>
-        <span className={styles.label}>Treasury</span>
-      </button> */}
-
+        <span className={styles.icon}>💰</span>
+        <span className={styles.label}>Wallet</span>
+      </button>
 
       <button
         className={`${styles.navItem} ${currentPage === 'profile' ? styles.active : ''}`}
