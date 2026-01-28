@@ -10,6 +10,8 @@ import { AdsPage } from '@/components/AdsPage/AdsPage';
 import { TasksPage } from '@/components/TasksPage/TasksPage';
 import { WalletPage } from '@/components/WalletPage/WalletPage';
 import { ProfilePage } from '@/components/ProfilePage/ProfilePage';
+import { WheelPage } from '@/components/WheelPage/WheelPage';
+import { TreasuryBoxPage } from '@/components/TreasuryPage/TreasuryBoxPage';
 import styles from './AppContainer.module.css';
 import { PageType } from '@/utils/types';
 import { isDev, createMockInitData, MOCK_DEV_USER, logDevMode } from '@/utils/devMode';
@@ -76,6 +78,10 @@ export function AppContainer() {
         return <WalletPage onNavigate={handleNavigate} />;
       case 'profile':
         return <ProfilePage onNavigate={handleNavigate} />;
+      case 'wheel':
+        return <WheelPage onNavigate={handleNavigate} />;
+      case 'treasury':
+        return <TreasuryBoxPage onNavigate={handleNavigate} />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }

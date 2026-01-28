@@ -92,31 +92,58 @@
   animation: slideUp 0.6s ease-out 0.1s both;
 }
 
-.missionCard {
+.missionButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
   background: white;
-  border-radius: 16px;
   border: 2px solid #f0f0f0;
-  overflow: hidden;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  text-align: left;
   animation: slideUp 0.6s ease-out;
 }
 
-.missionCardHeader {
-  padding: 16px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(96, 165, 250, 0.08) 100%);
-  border-bottom: 1px solid #f0f0f0;
+.missionButton:hover {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, rgba(96, 165, 250, 0.02) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.1);
 }
 
-.missionCardHeader h2 {
+.missionButton:active {
+  transform: translateY(0);
+}
+
+.missionButtonContent {
+  flex: 1;
+}
+
+.missionButtonContent h2 {
   margin: 0;
   font-size: 18px;
   font-weight: 700;
   color: #333;
 }
 
-.missionCardDesc {
-  margin: 4px 0 0 0;
+.missionButtonContent p {
+  margin: 8px 0 0 0;
   font-size: 13px;
   color: #999;
+}
+
+.missionArrow {
+  font-size: 24px;
+  color: #3b82f6;
+  margin-left: 16px;
+  transition: transform 0.3s ease;
+}
+
+.missionButton:hover .missionArrow {
+  transform: translateX(4px);
 }
 
 /* Tasks Content */
@@ -127,18 +154,41 @@
   animation: slideUp 0.6s ease-out 0.1s both;
 }
 
-.taskCreationSection {
-  background: white;
-  border-radius: 16px;
-  border: 2px solid #f0f0f0;
-  padding: 20px;
+.taskHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .sectionTitle {
-  margin: 0 0 16px 0;
+  margin: 0;
   font-size: 16px;
   font-weight: 700;
   color: #333;
+}
+
+.addTaskButton {
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.addTaskButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.addTaskButton:active {
+  transform: translateY(0);
 }
 
 .taskForm {
@@ -430,6 +480,75 @@
   cursor: not-allowed;
 }
 
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal {
+  background: white;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.3s ease-out;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+  color: #333;
+  transform: scale(1.1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @media (max-width: 480px) {
   .container {
     padding: 15px;
@@ -446,5 +565,19 @@
 
   .taskCardHeader {
     flex-direction: column;
+  }
+
+  .modal {
+    max-height: 95vh;
+    padding: 20px;
+  }
+
+  .taskHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .addTaskButton {
+    width: 100%;
   }
 }

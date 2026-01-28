@@ -1,2 +1,2 @@
 
-export type PageType = 'home' | 'ads' | 'tasks' | 'wallet' | 'profile';
+export type PageType = 'home' | 'ads' | 'tasks' | 'wallet' | 'profile' | 'wheel' | 'treasury';

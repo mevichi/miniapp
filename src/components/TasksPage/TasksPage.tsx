@@ -1,11 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './TasksPage.module.css';
 import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
-import { WheelPage } from '@/components/WheelPage/WheelPage';
-import { TreasuryBoxPage } from '@/components/TreasuryPage/TreasuryBoxPage';
 
 interface TasksPageProps {
   onNavigate?: (page: PageType) => void;
@@ -41,13 +39,14 @@ const COMPLETION_OPTIONS = [
 
 export function TasksPage({ onNavigate }: TasksPageProps) {
   const { user, token } = useApp();
-  const [activeTab, setActiveTab] = useState<'tasks' | 'missions'>('missions');
+  const [activeTab, setActiveTab] = useState<'tasks' | 'missions'>('tasks');
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   
   // Task Creation state
   const [taskType, setTaskType] = useState<TaskType>('subscription');
   const [url, setUrl] = useState('');
   const [description, setDescription] = useState('');
-  const [completionOption, setCompletionOption] = useState(0); // Index of COMPLETION_OPTIONS
+  const [completionOption, setCompletionOption] = useState(0);
   const [loadingCreate, setLoadingCreate] = useState(false);
   const [createMessage, setCreateMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   
@@ -57,7 +56,34 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
   const [completing, setCompleting] = useState<string | null>(null);
   const [completeMessage, setCompleteMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  useEffect(() => {
+    if (activeTab === 'tasks') {
+      fetchTasks();
+    }
+  }, [activeTab, token]);
+
   const selectedCompletion = COMPLETION_OPTIONS[completionOption];
+
+  const fetchTasks = async () => {
+    if (!token) return;
+    setLoadingTasks(true);
+    try {
+      const response = await fetch('https://api.solfren.dev/api/user-tasks', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUserTasks(data.tasks || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch tasks:', error);
+    } finally {
+      setLoadingTasks(false);
+    }
+  };
 
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +100,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
 
     setLoadingCreate(true);
     try {
-      const response = await fetch('https://api.solfren.dev/api/tasks/create', {
+      const response = await fetch('https://api.solfren.dev/api/user-tasks/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +110,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
           type: taskType,
           url,
           description,
-          completionReward: selectedCompletion,
+          completionReward: selectedCompletion.ton,
         }),
       });
 
@@ -96,10 +122,19 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
         type: 'success', 
         text: `✅ Task created! Payment of ${selectedCompletion.ton} TON will be processed.` 
       });
+      
+      // Reset form
       setUrl('');
       setDescription('');
       setTaskType('subscription');
       setCompletionOption(0);
+      
+      // Close modal after 2 seconds
+      setTimeout(() => {
+        setShowAddTaskModal(false);
+        setCreateMessage(null);
+        fetchTasks();
+      }, 2000);
     } catch (error) {
       setCreateMessage({
         type: 'error',
@@ -118,7 +153,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
 
       // Call backend to mark task complete
       const response = await fetch(
-        `https://api.solfren.dev/api/tasks/${taskId}/complete`,
+        `https://api.solfren.dev/api/user-tasks/${taskId}/complete`,
         {
           method: 'POST',
           headers: {
@@ -134,7 +169,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
           text: '✅ Task completed! You earned 50 coins!',
         });
         // Refresh task list
-        // await fetchTasks();
+        await fetchTasks();
       } else {
         throw new Error('Failed to complete task');
       }
@@ -146,6 +181,15 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
     } finally {
       setCompleting(null);
     }
+  };
+
+  const closeModal = () => {
+    setShowAddTaskModal(false);
+    setCreateMessage(null);
+    setUrl('');
+    setDescription('');
+    setTaskType('subscription');
+    setCompletionOption(0);
   };
 
   return (
@@ -172,33 +216,111 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
         </button>
       </div>
 
-      {/* Missions Tab - Wheel & Treasury */}
+      {/* Missions Tab - Wheel & Treasury Buttons */}
       {activeTab === 'missions' && (
         <div className={styles.missionsContent}>
-          <div className={styles.missionCard}>
-            <div className={styles.missionCardHeader}>
+          <button 
+            className={styles.missionButton}
+            onClick={() => onNavigate?.('wheel')}
+          >
+            <div className={styles.missionButtonContent}>
               <h2>🎡 Spin the Wheel</h2>
-              <p className={styles.missionCardDesc}>Use your spins to win prizes</p>
+              <p>Use your spins to win prizes</p>
             </div>
-            <WheelPage onNavigate={onNavigate} />
+            <span className={styles.missionArrow}>→</span>
+          </button>
+
+          <button 
+            className={styles.missionButton}
+            onClick={() => onNavigate?.('treasury')}
+          >
+            <div className={styles.missionButtonContent}>
+              <h2>🏺 Treasury Box</h2>
+              <p>Open boxes for rewards</p>
+            </div>
+            <span className={styles.missionArrow}>→</span>
+          </button>
+        </div>
+      )}
+
+      {/* Tasks Tab - Task List & Add Button */}
+      {activeTab === 'tasks' && (
+        <div className={styles.tasksContent}>
+          {/* Add Task Button */}
+          <div className={styles.taskHeader}>
+            <h2 className={styles.sectionTitle}>📋 Available User Tasks</h2>
+            <button 
+              className={styles.addTaskButton}
+              onClick={() => setShowAddTaskModal(true)}
+            >
+              ➕ Add Task
+            </button>
           </div>
 
-          <div className={styles.missionCard}>
-            <div className={styles.missionCardHeader}>
-              <h2>🏺 Treasury Box</h2>
-              <p className={styles.missionCardDesc}>Open boxes for rewards</p>
+          {/* Message */}
+          {completeMessage && (
+            <div className={`${styles.message} ${styles[completeMessage.type]}`}>
+              {completeMessage.text}
             </div>
-            <TreasuryBoxPage onNavigate={onNavigate} />
+          )}
+
+          {/* Task List */}
+          <div className={styles.tasksList}>
+            {loadingTasks ? (
+              <div className={styles.loading}>Loading tasks...</div>
+            ) : userTasks.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p>No user tasks available yet 😅</p>
+                <p className={styles.emptySubtext}>Be the first to create one!</p>
+              </div>
+            ) : (
+              userTasks.map((task) => (
+                <div key={task.taskId} className={styles.taskCard}>
+                  <div className={styles.taskCardHeader}>
+                    <h3 className={styles.taskTitle}>{task.description}</h3>
+                    <span className={styles.taskTypeBadge}>{TASK_TYPE_LABELS[task.type]}</span>
+                  </div>
+
+                  <div className={styles.taskMeta}>
+                    <p className={styles.createdBy}>by {task.createdBy}</p>
+                    <p className={styles.reward}>💰 Earn <strong>50 coins</strong></p>
+                  </div>
+
+                  <div className={styles.progressBar}>
+                    <div
+                      className={styles.progress}
+                      style={{
+                        width: `${Math.min((task.completions / task.completionReward.users) * 100, 100)}%`,
+                      }}
+                    />
+                  </div>
+                  <p className={styles.progressText}>
+                    {task.completions}/{task.completionReward.users} completions
+                  </p>
+
+                  <button
+                    className={styles.completeButton}
+                    onClick={() => handleCompleteTask(task.taskId, task.url)}
+                    disabled={completing === task.taskId}
+                  >
+                    {completing === task.taskId ? '⏳ Opening...' : '✓ Complete Task'}
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
 
-      {/* Tasks Tab - Create & List User Tasks */}
-      {activeTab === 'tasks' && (
-        <div className={styles.tasksContent}>
-          {/* Task Creation Section */}
-          <div className={styles.taskCreationSection}>
-            <h2 className={styles.sectionTitle}>➕ Create a New Task</h2>
+      {/* Add Task Modal */}
+      {showAddTaskModal && (
+        <div className={styles.modalOverlay} onClick={closeModal}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>➕ Create a New Task</h2>
+              <button className={styles.closeButton} onClick={closeModal}>×</button>
+            </div>
+
             <form onSubmit={handleCreateTask} className={styles.taskForm}>
               {/* Task Type */}
               <div className={styles.formGroup}>
@@ -301,60 +423,6 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
                 {loadingCreate ? '⏳ Creating...' : '✨ Create Task & Pay TON'}
               </button>
             </form>
-          </div>
-
-          {/* Available Tasks List */}
-          <div className={styles.availableTasksSection}>
-            <h2 className={styles.sectionTitle}>📋 Available User Tasks</h2>
-            
-            {completeMessage && (
-              <div className={`${styles.message} ${styles[completeMessage.type]}`}>
-                {completeMessage.text}
-              </div>
-            )}
-
-            <div className={styles.tasksList}>
-              {userTasks.length === 0 ? (
-                <div className={styles.emptyState}>
-                  <p>No user tasks available yet 😅</p>
-                  <p className={styles.emptySubtext}>Be the first to create one!</p>
-                </div>
-              ) : (
-                userTasks.map((task) => (
-                  <div key={task.taskId} className={styles.taskCard}>
-                    <div className={styles.taskCardHeader}>
-                      <h3 className={styles.taskTitle}>{task.description}</h3>
-                      <span className={styles.taskTypeBadge}>{TASK_TYPE_LABELS[task.type]}</span>
-                    </div>
-
-                    <div className={styles.taskMeta}>
-                      <p className={styles.createdBy}>by {task.createdBy}</p>
-                      <p className={styles.reward}>💰 Earn <strong>50 coins</strong></p>
-                    </div>
-
-                    <div className={styles.progressBar}>
-                      <div
-                        className={styles.progress}
-                        style={{
-                          width: `${Math.min((task.completions / task.completionReward.users) * 100, 100)}%`,
-                        }}
-                      />
-                    </div>
-                    <p className={styles.progressText}>
-                      {task.completions}/{task.completionReward.users} completions
-                    </p>
-
-                    <button
-                      className={styles.completeButton}
-                      onClick={() => handleCompleteTask(task.taskId, task.url)}
-                      disabled={completing === task.taskId}
-                    >
-                      {completing === task.taskId ? '⏳ Opening...' : '✓ Complete Task'}
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
           </div>
         </div>
       )}
