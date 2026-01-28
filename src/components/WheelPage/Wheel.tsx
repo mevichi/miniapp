@@ -139,53 +139,68 @@ export const CustomWheel: React.FC<CustomWheelProps> = ({
 
   // Handle spinning animation
   useEffect(() => {
-    if (!isSpinning) return;
+  if (!isSpinning) return;
 
-    setIsAnimating(true);
-    const selectedIndex = getRandomSegmentIndex();
-    // Rotate so the CENTER of the selected slice lands under the pointer.
-    // Adding 0.5 offsets by half a slice (in degrees).
-    const targetRotation =
-      rotationRef.current + 360 * 5 + ((selectedIndex + 0.5) * 360) / segments.length;
+  setIsAnimating(true);
 
-    let startTime: number | null = null;
-    const duration = 3000; // 3 seconds spin
+  const selectedIndex = getRandomSegmentIndex();
+  const sliceAngle = 360 / segments.length;
 
-    const animate = (currentTime: number) => {
-      if (!startTime) startTime = currentTime;
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
+  // pointer is at top (270deg canvas-wise), adjust if needed
+  const pointerOffset = -90;
 
-      // Easing function (ease-out)
-      const easeProgress = 1 - Math.pow(1 - progress, 3);
-      const newRotation = rotationRef.current + (targetRotation - rotationRef.current) * easeProgress;
+  const startRotation = rotationRef.current;
 
-      rotationRef.current = newRotation % 360;
-      setRotation(rotationRef.current);
+  const spins = 5; // full spins
+  const finalRotation =
+    startRotation +
+    spins * 360 +
+    selectedIndex * sliceAngle +
+    sliceAngle / 2 +
+    pointerOffset;
 
-      const ctx = canvasRef.current?.getContext('2d');
-      if (ctx) {
-        drawWheel(ctx, rotationRef.current);
-      }
+  let startTime: number | null = null;
+  const duration = 3000;
 
-      if (progress < 1) {
-        animationRef.current = requestAnimationFrame(animate);
-      } else {
-        setIsAnimating(false);
-        if (onSpinComplete) {
-          onSpinComplete(segments[selectedIndex], selectedIndex);
-        }
-      }
-    };
+  const animate = (time: number) => {
+    if (!startTime) startTime = time;
+    const elapsed = time - startTime;
+    const t = Math.min(elapsed / duration, 1);
 
-    animationRef.current = requestAnimationFrame(animate);
+    // cubic ease-out
+    const ease = 1 - Math.pow(1 - t, 3);
 
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [isSpinning, segments, onSpinComplete, segments]);
+    const currentRotation =
+      startRotation + (finalRotation - startRotation) * ease;
+
+    setRotation(currentRotation);
+    rotationRef.current = currentRotation;
+
+    const ctx = canvasRef.current?.getContext('2d');
+    if (ctx) drawWheel(ctx, currentRotation);
+
+    if (t < 1) {
+      animationRef.current = requestAnimationFrame(animate);
+    } else {
+      // snap exactly to final angle
+      const normalized = ((finalRotation % 360) + 360) % 360;
+      rotationRef.current = normalized;
+      setRotation(normalized);
+
+      setIsAnimating(false);
+      onSpinComplete?.(segments[selectedIndex], selectedIndex);
+    }
+  };
+
+  animationRef.current = requestAnimationFrame(animate);
+
+  return () => {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+  };
+}, [isSpinning, segments, onSpinComplete]);
+
 
   return (
     <div className={styles.wheelWrapper}>
