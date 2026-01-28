@@ -248,7 +248,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
         <div className={styles.tasksContent}>
           {/* Add Task Button */}
           <div className={styles.taskHeader}>
-            <h2 className={styles.sectionTitle}>📋 Available User Tasks</h2>
+            <h2 className={styles.sectionTitle}>📋 Available Tasks</h2>
             <button 
               className={styles.addTaskButton}
               onClick={() => setShowAddTaskModal(true)}
@@ -270,7 +270,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
               <div className={styles.loading}>Loading tasks...</div>
             ) : userTasks.length === 0 ? (
               <div className={styles.emptyState}>
-                <p>No user tasks available yet 😅</p>
+                <p>No tasks available yet 😅</p>
                 <p className={styles.emptySubtext}>Be the first to create one!</p>
               </div>
             ) : (
