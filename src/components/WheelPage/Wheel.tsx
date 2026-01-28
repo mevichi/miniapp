@@ -143,7 +143,10 @@ export const CustomWheel: React.FC<CustomWheelProps> = ({
 
     setIsAnimating(true);
     const selectedIndex = getRandomSegmentIndex();
-    const targetRotation = rotationRef.current + 360 * 5 + (selectedIndex * 360) / segments.length;
+    // Rotate so the CENTER of the selected slice lands under the pointer.
+    // Adding 0.5 offsets by half a slice (in degrees).
+    const targetRotation =
+      rotationRef.current + 360 * 5 + ((selectedIndex + 0.5) * 360) / segments.length;
 
     let startTime: number | null = null;
     const duration = 3000; // 3 seconds spin
