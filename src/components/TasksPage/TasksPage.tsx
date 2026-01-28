@@ -110,7 +110,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
           type: taskType,
           url,
           description,
-          completionReward: selectedCompletion.ton,
+          completionReward: selectedCompletion,
         }),
       });
 
