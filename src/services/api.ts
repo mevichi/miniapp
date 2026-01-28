@@ -427,6 +427,38 @@ export const withdrawCoins = async (token: string, amount: number) => {
 };
 
 /**
+ * Get user's withdrawal history
+ * Endpoint: GET /api/wallet/withdrawals
+ * Required headers: Authorization: Bearer {token}
+ */
+export const getWithdrawals = async (token: string) => {
+  try {
+    if (useDevMode()) {
+      return { withdrawals: [] };
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/wallet/withdrawals`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch withdrawals: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    // Expected response: { withdrawals: [{ withdrawalId, amount, status, timestamp, transactionId }], walletAddress }
+    return data;
+  } catch (error) {
+    console.error('Get withdrawals error:', error);
+    throw error;
+  }
+};
+
+/**
  * Get leaderboard (top users by balance)
  * Endpoint: GET /api/leaderboard
  * Optional query params: limit=10, offset=0

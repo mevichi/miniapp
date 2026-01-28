@@ -5,6 +5,7 @@ import styles from './WalletPage.module.css';
 import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
 import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react';
+import { getWithdrawals } from '@/services/api';
 
 interface Withdrawal {
   withdrawalId: string;
@@ -42,18 +43,9 @@ export function WalletPage(props: { onNavigate?: (page: PageType) => void }) {
     if (!token) return;
     setLoadingHistory(true);
     try {
-      const response = await fetch('/api/wallet/withdrawals', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Withdrawal history fetched:', data.withdrawals);
-        setWithdrawalHistory(data.withdrawals || []);
-      } else {
-        console.error('Failed to fetch withdrawals:', response.status);
-      }
+      const data = await getWithdrawals(token);
+      console.log('Withdrawal history fetched:', data.withdrawals);
+      setWithdrawalHistory(data.withdrawals || []);
     } catch (error) {
       console.error('Failed to fetch withdrawal history:', error);
     } finally {
