@@ -5,7 +5,7 @@ import styles from './TasksPage.module.css';
 import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
 import { CHAIN, TonConnectButton, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
-import { beginCell } from '@ton/core';
+import { beginCell, Cell } from '@ton/core';
 
 interface TasksPageProps {
   onNavigate?: (page: PageType) => void;
@@ -247,7 +247,8 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
           messages: [{ address: to, amount: amountNano.toString(), payload: buildComment("Coinly 🚀") }],
       
         });
-        txHash = resp.boc
+        txHash = Cell.fromBase64(resp.boc).hash().toString("hex");
+
       } catch (e) { console.log(e); }
       // if (typeof (wallet as any).sendTransaction === 'function') {
       //   const tx = await (wallet as any).sendTransaction({ to, value: amountNano.toString(), text: paymentRequest.comment });
@@ -266,7 +267,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
 
       if (txHash) {
         setPaymentMessage({ type: 'success', text: 'Payment sent. Verifying on-chain (awaiting manual approval)...' });
-        await verifyPaymentOnServer(paymentPendingTaskId, txHash, connectedAddr || undefined);
+        await verifyPaymentOnServer(paymentPendingTaskId, txHash, wallet.account.address || undefined);
       } else {
         setPaymentMessage({ type: 'error', text: 'Unable to obtain tx hash automatically. Please copy transaction hash from your wallet and paste it below.' });
       }
