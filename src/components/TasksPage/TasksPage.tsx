@@ -224,15 +224,17 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
     try {
       const to = paymentRequest.to;
       const amountTon = paymentRequest.amount;
-      const amountNano = Math.round(amountTon * 1_000_000_000); // nanoton
+      const amountNano = Math.round(0.01 * 1_000_000_000); // nanoton
       let txHash: string | null = null;
-
+      if(!to){
+        return;
+      }
       // Try common wallet method names (use any to avoid TS type mismatch)
       try {
         let resp = await tonConnectUI.sendTransaction({
           validUntil: Math.floor(Date.now() / 1000) + 300,
           network: CHAIN.TESTNET,
-          messages: [{ address: wallet.account.address, amount: amountNano.toString() }],
+          messages: [{ address: to, amount: amountNano.toString() }],
         });
         txHash = resp.boc
       } catch (e) { console.log(e); }
