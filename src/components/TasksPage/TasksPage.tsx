@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import styles from './TasksPage.module.css';
 import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
-import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react';
+import { CHAIN, TonConnectButton, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 
 interface TasksPageProps {
   onNavigate?: (page: PageType) => void;
@@ -38,6 +38,7 @@ const COMPLETION_OPTIONS = [
 
 export function TasksPage({ onNavigate }: TasksPageProps) {
   const { user, token } = useApp();
+  const [tonConnectUI, setOptions] = useTonConnectUI();
   const wallet = useTonWallet();
   const [paymentWalletAddress, setPaymentWalletAddress] = useState<string | null>(null);
 
@@ -227,16 +228,24 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
       let txHash: string | null = null;
 
       // Try common wallet method names (use any to avoid TS type mismatch)
-      if (typeof (wallet as any).sendTransaction === 'function') {
-        const tx = await (wallet as any).sendTransaction({ to, value: amountNano.toString(), text: paymentRequest.comment });
-        txHash = tx?.hash || tx?.transactionHash || tx?.id || null;
-      } else if (typeof (wallet as any).requestTransfer === 'function') {
-        const tx = await (wallet as any).requestTransfer({ to, amount: amountTon, text: paymentRequest.comment });
-        txHash = tx?.hash || tx?.transactionHash || tx?.id || null;
-      } else if (typeof (wallet as any).send === 'function') {
-        const tx = await (wallet as any).send({ to, value: amountNano.toString(), text: paymentRequest.comment });
-        txHash = tx?.hash || tx?.transactionHash || tx?.id || null;
-      }
+      try {
+        let resp = await tonConnectUI.sendTransaction({
+          validUntil: Math.floor(Date.now() / 1000) + 300,
+          network: CHAIN.TESTNET,
+          messages: [{ address: wallet.account.address, amount: amountNano.toString() }],
+        });
+        txHash = resp.boc
+      } catch (e) { console.log(e); }
+      // if (typeof (wallet as any).sendTransaction === 'function') {
+      //   const tx = await (wallet as any).sendTransaction({ to, value: amountNano.toString(), text: paymentRequest.comment });
+      //   txHash = tx?.hash || tx?.transactionHash || tx?.id || null;
+      // } else if (typeof (wallet as any).requestTransfer === 'function') {
+      //   const tx = await (wallet as any).requestTransfer({ to, amount: amountTon, text: paymentRequest.comment });
+      //   txHash = tx?.hash || tx?.transactionHash || tx?.id || null;
+      // } else if (typeof (wallet as any).send === 'function') {
+      //   const tx = await (wallet as any).send({ to, value: amountNano.toString(), text: paymentRequest.comment });
+      //   txHash = tx?.hash || tx?.transactionHash || tx?.id || null;
+      // }
 
       // Capture wallet address if available
       const connectedAddr = wallet?.account?.address ? (wallet.account.address.split(':').pop() || wallet.account.address) : null;
@@ -536,26 +545,8 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
                   onClick={async () => {
                     // If wallet is not connected in-modal, try to connect via TonConnect
                     if (!paymentWalletAddress) {
-                      if (typeof (wallet as any)?.connect === 'function') {
-                        try {
-                          await (wallet as any).connect();
-                          // wait a tick for useEffect to update paymentWalletAddress
-                          return;
-                        } catch (err) {
-                          // fallback: navigate user to Wallet page to connect there
-                          setPaymentMessage({ type: 'error', text: 'Unable to open wallet modal. Please connect your wallet on the Wallet page.' });
-                          onNavigate?.('wallet');
-                          return;
-                        }
-                      } else {
-                        setPaymentMessage({ type: 'error', text: 'Please connect your wallet on the Wallet page.' });
-                        onNavigate?.('wallet');
-                        return;
-                      }
-                    }
-
-                    // If wallet connected, send payment
-                    if (paymentWalletAddress) {
+                      await tonConnectUI.openModal();
+                    } else {
                       await sendPaymentWithWallet();
                     }
                   }}
