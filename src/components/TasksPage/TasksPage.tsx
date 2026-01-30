@@ -505,16 +505,40 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
                 </div>
               )}
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                className={styles.submitButton}
-                disabled={loadingCreate || !url.trim() || !description.trim()}
-              >
-                {loadingCreate ? '⏳ Creating...' : '✨ Create Task & Pay TON'}
-              </button>
+              {/* Primary Button - morphs based on state */}
+              {!paymentPendingTaskId ? (
+                <button
+                  type="submit"
+                  className={styles.submitButton}
+                  disabled={loadingCreate || !url.trim() || !description.trim()}
+                >
+                  {loadingCreate ? '⏳ Creating...' : '✨ Create Task & Pay TON'}
+                </button>
+              ) : (
+                // After task created and payment is pending, reuse the same button
+                <button
+                  type="button"
+                  className={styles.submitButton}
+                  onClick={async () => {
+                    // If wallet connected, attempt to pay; otherwise navigate to wallet page
+                    const isWalletConnected = !!(wallet?.account?.address || user?.walletAddress);
+                    if (!isWalletConnected) {
+                      setPaymentMessage({ type: 'error', text: 'Please connect your TON wallet first' });
+                      onNavigate?.('wallet');
+                      return;
+                    }
 
-              {/* Payment Step (shown if paymentRequest exists) */}
+                    // Otherwise, send payment
+                    await sendPaymentWithWallet();
+                  }}
+                >
+                  {wallet?.account?.address || user?.walletAddress
+                    ? `Pay ${paymentRequest?.amount ?? ''} TON`
+                    : 'Connect TON Wallet'}
+                </button>
+              )}
+
+              {/* Manual verification UI remains available */}
               {paymentRequest && paymentPendingTaskId && (
                 <div className={styles.paymentBox}>
                   <h4>🔒 Payment required</h4>
@@ -523,12 +547,6 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
                   {paymentMessage && (
                     <div className={`${styles.message} ${styles[paymentMessage.type]}`}>{paymentMessage.text}</div>
                   )}
-
-                  <div className={styles.paymentActions}>
-                    <button type="button" className={styles.payButton} onClick={sendPaymentWithWallet}>
-                      Pay with Wallet
-                    </button>
-                  </div>
 
                   <div className={styles.manualPayment}>
                     <p>If your wallet doesn't return a tx hash, paste it here:</p>
