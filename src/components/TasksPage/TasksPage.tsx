@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import styles from './TasksPage.module.css';
 import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
-import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react';
+import { useTonWallet } from '@tonconnect/ui-react';
 
 interface TasksPageProps {
   onNavigate?: (page: PageType) => void;
@@ -534,18 +534,22 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
                   type="button"
                   className={styles.submitButton}
                   onClick={async () => {
-                    // If a payment wallet is not connected, try to trigger TonConnect programmatically
+                    // If wallet is not connected in-modal, try to connect via TonConnect
                     if (!paymentWalletAddress) {
                       if (typeof (wallet as any)?.connect === 'function') {
                         try {
                           await (wallet as any).connect();
+                          // wait a tick for useEffect to update paymentWalletAddress
+                          return;
                         } catch (err) {
-                          // fallback: instruct user to press the connect button below
-                          setPaymentMessage({ type: 'error', text: 'Please click the "Connect TON Wallet" button below to connect.' });
+                          // fallback: navigate user to Wallet page to connect there
+                          setPaymentMessage({ type: 'error', text: 'Unable to open wallet modal. Please connect your wallet on the Wallet page.' });
+                          onNavigate?.('wallet');
                           return;
                         }
                       } else {
-                        setPaymentMessage({ type: 'error', text: 'Please click the "Connect TON Wallet" button below to connect.' });
+                        setPaymentMessage({ type: 'error', text: 'Please connect your wallet on the Wallet page.' });
+                        onNavigate?.('wallet');
                         return;
                       }
                     }
@@ -571,41 +575,10 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
                   )}
 
                   <div className={styles.paymentActions}>
-                    {/* TonConnect button for in-modal connection (separate from profile) */}
-                    {!paymentWalletAddress && (
-                      <div>
-                        <TonConnectButton />
-                        <div style={{ marginTop: 8 }}>
-                          <button
-                            type="button"
-                            className={styles.payButton}
-                            onClick={() => {
-                              // If TonConnect connected, the useEffect will pick it up; otherwise instruct user
-                              if (!wallet?.account?.address) {
-                                setPaymentMessage({ type: 'error', text: 'Open the TON wallet modal and connect a wallet.' });
-                              }
-                            }}
-                          >
-                            Connect TON Wallet
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Show connected wallet and let user select it for payment */}
-                    {paymentWalletAddress && (
-                      <div>
-                        <p>Connected wallet: <strong>{paymentWalletAddress}</strong></p>
-                        <div style={{ marginTop: 8 }}>
-                          <button
-                            type="button"
-                            className={styles.payButton}
-                            onClick={() => sendPaymentWithWallet()}
-                          >
-                            Pay {paymentRequest.amount} TON
-                          </button>
-                        </div>
-                      </div>
+                    {paymentWalletAddress ? (
+                      <p>Connected wallet: <strong>{paymentWalletAddress}</strong></p>
+                    ) : (
+                      <p>Please click the button above to connect your TON wallet via TonConnect.</p>
                     )}
                   </div>
 
