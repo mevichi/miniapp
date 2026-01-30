@@ -1,5 +1,7 @@
 {
   "url": "https://api.solfren.dev",
   "name": "Coinly",
-  "iconUrl": "https://api.solfren.dev/coinly-logo.png"
+  "iconUrl": "https://api.solfren.dev/coinly-logo.png",
+  "termsOfUseUrl": "https://tonconnect-sdk-demo-dapp.vercel.app/terms-of-use.txt",
+  "privacyPolicyUrl": "https://tonconnect-sdk-demo-dapp.vercel.app/privacy-policy.txt"
 }
