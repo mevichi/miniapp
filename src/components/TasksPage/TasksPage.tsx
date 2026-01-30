@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import styles from './TasksPage.module.css';
 import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
-import { useTonWallet } from '@tonconnect/ui-react';
+import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react';
 
 interface TasksPageProps {
   onNavigate?: (page: PageType) => void;
@@ -39,6 +39,16 @@ const COMPLETION_OPTIONS = [
 export function TasksPage({ onNavigate }: TasksPageProps) {
   const { user, token } = useApp();
   const wallet = useTonWallet();
+  const [paymentWalletAddress, setPaymentWalletAddress] = useState<string | null>(null);
+
+  useEffect(() => {
+    // If user connects via TonConnect inside modal, capture that address locally
+    const addr = wallet?.account?.address;
+    if (addr) {
+      const short = addr.split(':').pop() || addr;
+      setPaymentWalletAddress(short);
+    }
+  }, [wallet?.account?.address]);
 
   const [activeTab, setActiveTab] = useState<'tasks' | 'missions'>('tasks');
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
@@ -228,9 +238,13 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
         txHash = tx?.hash || tx?.transactionHash || tx?.id || null;
       }
 
+      // Capture wallet address if available
+      const connectedAddr = wallet?.account?.address ? (wallet.account.address.split(':').pop() || wallet.account.address) : null;
+      if (connectedAddr) setPaymentWalletAddress(connectedAddr);
+
       if (txHash) {
-        setPaymentMessage({ type: 'success', text: 'Payment sent. Verifying on-chain...' });
-        await verifyPaymentOnServer(paymentPendingTaskId, txHash);
+        setPaymentMessage({ type: 'success', text: 'Payment sent. Verifying on-chain (awaiting manual approval)...' });
+        await verifyPaymentOnServer(paymentPendingTaskId, txHash, connectedAddr || undefined);
       } else {
         setPaymentMessage({ type: 'error', text: 'Unable to obtain tx hash automatically. Please copy transaction hash from your wallet and paste it below.' });
       }
@@ -239,7 +253,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
     }
   };
 
-  const verifyPaymentOnServer = async (taskId: string, txHash: string) => {
+  const verifyPaymentOnServer = async (taskId: string, txHash: string, creatorWalletAddress?: string) => {
     setVerifying(true);
     try {
       const response = await fetch('https://api.solfren.dev/api/user-tasks/verify-payment', {
@@ -248,12 +262,12 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ taskId, txHash }),
+        body: JSON.stringify({ taskId, txHash, creatorWalletAddress }),
       });
 
       const data = await response.json();
       if (response.ok && data.success) {
-        setPaymentMessage({ type: 'success', text: 'Payment verified and task activated!' });
+        setPaymentMessage({ type: 'success', text: 'Payment verified and recorded. The task is awaiting manual approval.' });
         // cleanup and refresh
         setPaymentRequest(null);
         setPaymentPendingTaskId(null);
@@ -520,21 +534,29 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
                   type="button"
                   className={styles.submitButton}
                   onClick={async () => {
-                    // If wallet connected, attempt to pay; otherwise navigate to wallet page
-                    const isWalletConnected = !!(wallet?.account?.address || user?.walletAddress);
-                    if (!isWalletConnected) {
-                      setPaymentMessage({ type: 'error', text: 'Please connect your TON wallet first' });
-                      onNavigate?.('wallet');
-                      return;
+                    // If a payment wallet is not connected, try to trigger TonConnect programmatically
+                    if (!paymentWalletAddress) {
+                      if (typeof (wallet as any)?.connect === 'function') {
+                        try {
+                          await (wallet as any).connect();
+                        } catch (err) {
+                          // fallback: instruct user to press the connect button below
+                          setPaymentMessage({ type: 'error', text: 'Please click the "Connect TON Wallet" button below to connect.' });
+                          return;
+                        }
+                      } else {
+                        setPaymentMessage({ type: 'error', text: 'Please click the "Connect TON Wallet" button below to connect.' });
+                        return;
+                      }
                     }
 
-                    // Otherwise, send payment
-                    await sendPaymentWithWallet();
+                    // If wallet connected, send payment
+                    if (paymentWalletAddress) {
+                      await sendPaymentWithWallet();
+                    }
                   }}
                 >
-                  {wallet?.account?.address || user?.walletAddress
-                    ? `Pay ${paymentRequest?.amount ?? ''} TON`
-                    : 'Connect TON Wallet'}
+                  {paymentWalletAddress ? `Pay ${paymentRequest?.amount ?? ''} TON` : 'Connect TON Wallet'}
                 </button>
               )}
 
@@ -547,6 +569,45 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
                   {paymentMessage && (
                     <div className={`${styles.message} ${styles[paymentMessage.type]}`}>{paymentMessage.text}</div>
                   )}
+
+                  <div className={styles.paymentActions}>
+                    {/* TonConnect button for in-modal connection (separate from profile) */}
+                    {!paymentWalletAddress && (
+                      <div>
+                        <TonConnectButton />
+                        <div style={{ marginTop: 8 }}>
+                          <button
+                            type="button"
+                            className={styles.payButton}
+                            onClick={() => {
+                              // If TonConnect connected, the useEffect will pick it up; otherwise instruct user
+                              if (!wallet?.account?.address) {
+                                setPaymentMessage({ type: 'error', text: 'Open the TON wallet modal and connect a wallet.' });
+                              }
+                            }}
+                          >
+                            Connect TON Wallet
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Show connected wallet and let user select it for payment */}
+                    {paymentWalletAddress && (
+                      <div>
+                        <p>Connected wallet: <strong>{paymentWalletAddress}</strong></p>
+                        <div style={{ marginTop: 8 }}>
+                          <button
+                            type="button"
+                            className={styles.payButton}
+                            onClick={() => sendPaymentWithWallet()}
+                          >
+                            Pay {paymentRequest.amount} TON
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   <div className={styles.manualPayment}>
                     <p>If your wallet doesn't return a tx hash, paste it here:</p>
@@ -561,7 +622,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
                         required
                       />
                       <button type="submit" className={styles.submitButton} disabled={verifying}>
-                        {verifying ? '⏳ Verifying...' : '✅ Verify & Activate'}
+                        {verifying ? '⏳ Verifying...' : '✅ Verify & Record Payment'}
                       </button>
                     </form>
                   </div>
