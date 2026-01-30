@@ -530,39 +530,38 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
                 </button>
               ) : (
                 // After task created and payment is pending, reuse the same button
-                // <button
-                //   type="button"
-                //   className={styles.submitButton}
-                //   onClick={async () => {
-                //     // If wallet is not connected in-modal, try to connect via TonConnect
-                //     if (!paymentWalletAddress) {
-                //       if (typeof (wallet as any)?.connect === 'function') {
-                //         try {
-                //           await (wallet as any).connect();
-                //           // wait a tick for useEffect to update paymentWalletAddress
-                //           return;
-                //         } catch (err) {
-                //           // fallback: navigate user to Wallet page to connect there
-                //           setPaymentMessage({ type: 'error', text: 'Unable to open wallet modal. Please connect your wallet on the Wallet page.' });
-                //           onNavigate?.('wallet');
-                //           return;
-                //         }
-                //       } else {
-                //         setPaymentMessage({ type: 'error', text: 'Please connect your wallet on the Wallet page.' });
-                //         onNavigate?.('wallet');
-                //         return;
-                //       }
-                //     }
+                <button
+                  type="button"
+                  className={styles.submitButton}
+                  onClick={async () => {
+                    // If wallet is not connected in-modal, try to connect via TonConnect
+                    if (!paymentWalletAddress) {
+                      if (typeof (wallet as any)?.connect === 'function') {
+                        try {
+                          await (wallet as any).connect();
+                          // wait a tick for useEffect to update paymentWalletAddress
+                          return;
+                        } catch (err) {
+                          // fallback: navigate user to Wallet page to connect there
+                          setPaymentMessage({ type: 'error', text: 'Unable to open wallet modal. Please connect your wallet on the Wallet page.' });
+                          onNavigate?.('wallet');
+                          return;
+                        }
+                      } else {
+                        setPaymentMessage({ type: 'error', text: 'Please connect your wallet on the Wallet page.' });
+                        onNavigate?.('wallet');
+                        return;
+                      }
+                    }
 
-                //     // If wallet connected, send payment
-                //     if (paymentWalletAddress) {
-                //       await sendPaymentWithWallet();
-                //     }
-                //   }}
-                // >
-                //   {paymentWalletAddress ? `Pay ${paymentRequest?.amount ?? ''} TON` : 'Connect TON Wallet'}
-                // </button>
-                 <TonConnectButton />
+                    // If wallet connected, send payment
+                    if (paymentWalletAddress) {
+                      await sendPaymentWithWallet();
+                    }
+                  }}
+                >
+                  {paymentWalletAddress ? `Pay ${paymentRequest?.amount ?? ''} TON` : 'Connect TON Wallet'}
+                </button>
               )}
 
               {/* Manual verification UI remains available */}
