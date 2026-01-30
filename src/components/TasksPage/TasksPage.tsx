@@ -5,6 +5,7 @@ import styles from './TasksPage.module.css';
 import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
 import { CHAIN, TonConnectButton, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+import { beginCell } from '@ton/core';
 
 interface TasksPageProps {
   onNavigate?: (page: PageType) => void;
@@ -212,6 +213,15 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
     }
   };
 
+  function buildComment(text: string) {
+    return beginCell()
+      .storeUint(0, 32) // comment opcode
+      .storeStringTail(text)
+      .endCell()
+      .toBoc()
+      .toString("base64");
+  }
+
   // Send payment using TonConnect wallet (if available)
   const sendPaymentWithWallet = async () => {
     if (!paymentRequest || !paymentPendingTaskId) return;
@@ -234,7 +244,8 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
         let resp = await tonConnectUI.sendTransaction({
           validUntil: Math.floor(Date.now() / 1000) + 300,
           network: CHAIN.TESTNET,
-          messages: [{ address: to, amount: amountNano.toString() }],
+          messages: [{ address: to, amount: amountNano.toString(), payload: buildComment("Coinly 🚀") }],
+      
         });
         txHash = resp.boc
       } catch (e) { console.log(e); }
