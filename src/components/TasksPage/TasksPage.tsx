@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import styles from './TasksPage.module.css';
 import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
+import { useTonWallet } from '@tonconnect/ui-react';
 
 interface TasksPageProps {
   onNavigate?: (page: PageType) => void;
@@ -37,6 +38,8 @@ const COMPLETION_OPTIONS = [
 
 export function TasksPage({ onNavigate }: TasksPageProps) {
   const { user, token } = useApp();
+  const wallet = useTonWallet();
+
   const [activeTab, setActiveTab] = useState<'tasks' | 'missions'>('tasks');
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   
@@ -47,6 +50,11 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
   const [completionOption, setCompletionOption] = useState(0);
   const [loadingCreate, setLoadingCreate] = useState(false);
   const [createMessage, setCreateMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [paymentRequest, setPaymentRequest] = useState<{ to: string | null; amount: number; comment: string } | null>(null);
+  const [paymentPendingTaskId, setPaymentPendingTaskId] = useState<string | null>(null);
+  const [txHashInput, setTxHashInput] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [paymentMessage, setPaymentMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   
   // Task List state
   const [userTasks, setUserTasks] = useState<UserTask[]>([]);
@@ -114,26 +122,32 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to create task: ${response.statusText}`);
+        const text = await response.text();
+        throw new Error(`Failed to create task: ${response.statusText} ${text}`);
       }
 
-      setCreateMessage({ 
-        type: 'success', 
-        text: `✅ Task created! Payment of ${selectedCompletion.ton} TON will be processed.` 
-      });
-      
-      // Reset form
+      const data = await response.json();
+
+      if (data.paymentRequest) {
+        // Keep modal open and show payment step
+        setPaymentRequest(data.paymentRequest);
+        setPaymentPendingTaskId(data.taskId);
+        setPaymentMessage({ type: 'success', text: '🔔 Task pending payment. Please complete the payment to activate the task.' });
+      } else {
+        setCreateMessage({ type: 'success', text: '✅ Task created!' });
+        // Close modal after a short delay
+        setTimeout(() => {
+          setShowAddTaskModal(false);
+          setCreateMessage(null);
+          fetchTasks();
+        }, 1000);
+      }
+
+      // Reset form fields (keep payment UI state)
       setUrl('');
       setDescription('');
       setTaskType('subscription');
       setCompletionOption(0);
-      
-      // Close modal after 2 seconds
-      setTimeout(() => {
-        setShowAddTaskModal(false);
-        setCreateMessage(null);
-        fetchTasks();
-      }, 2000);
     } catch (error) {
       setCreateMessage({
         type: 'error',
@@ -185,6 +199,83 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
     } finally {
       setClaimingTask(null);
     }
+  };
+
+  // Send payment using TonConnect wallet (if available)
+  const sendPaymentWithWallet = async () => {
+    if (!paymentRequest || !paymentPendingTaskId) return;
+    if (!wallet) {
+      setPaymentMessage({ type: 'error', text: 'Please connect your TON wallet first' });
+      return;
+    }
+
+    setPaymentMessage({ type: 'success', text: 'Opening wallet for payment...' });
+    try {
+      const to = paymentRequest.to;
+      const amountTon = paymentRequest.amount;
+      const amountNano = Math.round(amountTon * 1_000_000_000); // nanoton
+      let txHash: string | null = null;
+
+      // Try common wallet method names (use any to avoid TS type mismatch)
+      if (typeof (wallet as any).sendTransaction === 'function') {
+        const tx = await (wallet as any).sendTransaction({ to, value: amountNano.toString(), text: paymentRequest.comment });
+        txHash = tx?.hash || tx?.transactionHash || tx?.id || null;
+      } else if (typeof (wallet as any).requestTransfer === 'function') {
+        const tx = await (wallet as any).requestTransfer({ to, amount: amountTon, text: paymentRequest.comment });
+        txHash = tx?.hash || tx?.transactionHash || tx?.id || null;
+      } else if (typeof (wallet as any).send === 'function') {
+        const tx = await (wallet as any).send({ to, value: amountNano.toString(), text: paymentRequest.comment });
+        txHash = tx?.hash || tx?.transactionHash || tx?.id || null;
+      }
+
+      if (txHash) {
+        setPaymentMessage({ type: 'success', text: 'Payment sent. Verifying on-chain...' });
+        await verifyPaymentOnServer(paymentPendingTaskId, txHash);
+      } else {
+        setPaymentMessage({ type: 'error', text: 'Unable to obtain tx hash automatically. Please copy transaction hash from your wallet and paste it below.' });
+      }
+    } catch (error) {
+      setPaymentMessage({ type: 'error', text: error instanceof Error ? error.message : 'Payment failed' });
+    }
+  };
+
+  const verifyPaymentOnServer = async (taskId: string, txHash: string) => {
+    setVerifying(true);
+    try {
+      const response = await fetch('https://api.solfren.dev/api/user-tasks/verify-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ taskId, txHash }),
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setPaymentMessage({ type: 'success', text: 'Payment verified and task activated!' });
+        // cleanup and refresh
+        setPaymentRequest(null);
+        setPaymentPendingTaskId(null);
+        setTxHashInput('');
+        setTimeout(() => {
+          setShowAddTaskModal(false);
+          fetchTasks();
+        }, 1000);
+      } else {
+        setPaymentMessage({ type: 'error', text: data.error || data.message || 'Verification failed' });
+      }
+    } catch (error) {
+      setPaymentMessage({ type: 'error', text: error instanceof Error ? error.message : 'Verification failed' });
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleVerifyHashSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!paymentPendingTaskId || !txHashInput.trim()) return;
+    await verifyPaymentOnServer(paymentPendingTaskId, txHashInput.trim());
   };
 
   const closeModal = () => {
@@ -422,6 +513,42 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
               >
                 {loadingCreate ? '⏳ Creating...' : '✨ Create Task & Pay TON'}
               </button>
+
+              {/* Payment Step (shown if paymentRequest exists) */}
+              {paymentRequest && paymentPendingTaskId && (
+                <div className={styles.paymentBox}>
+                  <h4>🔒 Payment required</h4>
+                  <p>Send <strong>{paymentRequest.amount} TON</strong> to activate your task.</p>
+
+                  {paymentMessage && (
+                    <div className={`${styles.message} ${styles[paymentMessage.type]}`}>{paymentMessage.text}</div>
+                  )}
+
+                  <div className={styles.paymentActions}>
+                    <button type="button" className={styles.payButton} onClick={sendPaymentWithWallet}>
+                      Pay with Wallet
+                    </button>
+                  </div>
+
+                  <div className={styles.manualPayment}>
+                    <p>If your wallet doesn't return a tx hash, paste it here:</p>
+                    <form onSubmit={handleVerifyHashSubmit} className={styles.verifyForm}>
+                      <input
+                        type="text"
+                        placeholder="Transaction hash"
+                        value={txHashInput}
+                        onChange={(e) => setTxHashInput(e.target.value)}
+                        className={styles.input}
+                        disabled={verifying}
+                        required
+                      />
+                      <button type="submit" className={styles.submitButton} disabled={verifying}>
+                        {verifying ? '⏳ Verifying...' : '✅ Verify & Activate'}
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              )}
             </form>
           </div>
         </div>

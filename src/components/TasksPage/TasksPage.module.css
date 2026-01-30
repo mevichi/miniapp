@@ -280,6 +280,39 @@
   padding: 16px;
 }
 
+.paymentBox {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px dashed #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.paymentActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.payButton {
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.manualPayment {
+  margin-top: 12px;
+}
+
+.verifyForm {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .rewardBox h4 {
   margin: 0 0 12px 0;
   font-size: 13px;
