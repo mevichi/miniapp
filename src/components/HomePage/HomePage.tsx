@@ -62,6 +62,18 @@ export function HomePage({ onNavigate }: HomePageProps) {
           </button>
         </div>
 
+        <div className={styles.card}>
+          <div className={styles.cardIcon}>🎁</div>
+          <h3 className={styles.cardTitle}>Invite Friends</h3>
+          <p className={styles.cardDesc}>Earn 20% of your friends' earnings!</p>
+          <button
+            className={styles.cardButton}
+            onClick={() => onNavigate('referral')}
+          >
+            Invite Now →
+          </button>
+        </div>
+
         {/* <div className={styles.card}>
           <div className={styles.cardIcon}>🎡</div>
           <h3 className={styles.cardTitle}>Spin the Wheel</h3>
