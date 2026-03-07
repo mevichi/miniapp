@@ -186,8 +186,21 @@ export const CustomWheel: React.FC<CustomWheelProps> = ({
         setRotation(normalized);
 
         setIsAnimating(false);
-        // Report the selected segment
-        onSpinComplete?.(segments[selectedIndex], selectedIndex);
+
+        // Calculate which segment is actually at the pointer (270°) after rotation
+        // Pointer is at 270°, wheel rotates clockwise, so we need to find which segment
+        // is at 270° given the rotation
+        // Segment i is at angle: i * sliceAngle + normalized
+        // We need: i * sliceAngle + normalized ≡ 270 (mod 360)
+        // i * sliceAngle ≡ 270 - normalized (mod 360)
+        // i ≡ (270 - normalized) / sliceAngle (mod numSegments)
+        const pointerAngle = 270;
+        const actualSegmentIndex = Math.floor(
+          (((pointerAngle - normalized) % 360) + 360) % 360 / sliceAngle
+        ) % segments.length;
+
+        // Report the segment that's actually at the pointer
+        onSpinComplete?.(segments[actualSegmentIndex], actualSegmentIndex);
       }
     };
 
