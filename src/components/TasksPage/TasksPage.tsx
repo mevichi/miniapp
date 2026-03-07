@@ -6,6 +6,7 @@ import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
 import { CHAIN, TonConnectButton, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 import { beginCell, Cell } from '@ton/core';
+import { API_BASE_URL } from '@/services/api';
 
 interface TasksPageProps {
   onNavigate?: (page: PageType) => void;
@@ -119,7 +120,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
     if (!token) return;
     setLoadingTasks(true);
     try {
-      const response = await fetch('https://api.solfren.dev/api/user-tasks', {
+      const response = await fetch(`${API_BASE_URL}/api/user-tasks`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -156,7 +157,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
 
     setLoadingCreate(true);
     try {
-      const response = await fetch('https://api.solfren.dev/api/user-tasks/create', {
+      const response = await fetch(`${API_BASE_URL}/api/user-tasks/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -218,7 +219,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
     setClaimingTask(taskId);
     try {
       const response = await fetch(
-        `https://api.solfren.dev/api/user-tasks/${taskId}/complete`,
+        `${API_BASE_URL}/api/user-tasks/${taskId}/complete`,
         {
           method: 'POST',
           headers: {
@@ -316,7 +317,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
   const verifyPaymentOnServer = async (taskId: string, txHash: string, creatorWalletAddress?: string) => {
     setVerifying(true);
     try {
-      const response = await fetch('https://api.solfren.dev/api/user-tasks/verify-payment', {
+      const response = await fetch(`${API_BASE_URL}/api/user-tasks/verify-payment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
