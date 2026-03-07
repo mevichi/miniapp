@@ -1,11 +1,11 @@
 /**
- * API Service for communicating with https://api.solfren.dev
+ * API Service for communicating with https://miniapp-backend-g0k3.onrender.com
  * All backend endpoints are documented with comments for easy deployment
  */
 
 import { isDev, getMockDevUserResponse } from '@/utils/devMode';
 
-const API_BASE_URL = 'https://api.solfren.dev';
+const API_BASE_URL = 'https://miniapp-backend-g0k3.onrender.com';
 
 /**
  * Helper to determine if we should use mock responses
