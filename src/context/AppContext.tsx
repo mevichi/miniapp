@@ -102,6 +102,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
               totalKeys: profile.totalKeys,
               totalDiamonds: profile.totalDiamonds || 0,
               totalSpins: profile.totalSpins,
+              currentStreak: profile.currentStreak || 0,
+              longestStreak: profile.longestStreak || 0,
               walletAddress: profile.walletAddress,
             }
           : null
