@@ -65,7 +65,7 @@
 
 /* Code Card */
 .codeCard {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
   border-radius: 20px;
   padding: 24px;
   margin-bottom: 20px;
@@ -155,7 +155,7 @@
 }
 
 .statCard {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
   border-radius: 16px;
   padding: 16px;
   text-align: center;
@@ -177,7 +177,7 @@
 
 /* How It Works */
 .howItWorks {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
   border-radius: 20px;
   padding: 20px;
   margin-bottom: 24px;
@@ -230,7 +230,7 @@
 
 /* Referred Users */
 .referredUsers {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
   border-radius: 20px;
   padding: 20px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
