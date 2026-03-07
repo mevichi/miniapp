@@ -1,0 +1,264 @@
+.container {
+  padding: 20px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.header h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, #fdc963, #ff4b78);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 14px;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+}
+
+.retryButton {
+  margin-top: 16px;
+  padding: 10px 20px;
+  background: #ff4b78;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Code Card */
+.codeCard {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.codeCard h2 {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: #fdc963;
+}
+
+.codeBox {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.code {
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #00cca8;
+}
+
+.linkBox {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.linkInput {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-size: 12px;
+}
+
+.copyButton {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #2b87e9;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.shareButton {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(90deg, #00cca8, #2b87e9);
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.statValue {
+  display: block;
+  font-size: 24px;
+  font-weight: bold;
+  color: #fdc963;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: #888;
+}
+
+/* How It Works */
+.howItWorks {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.howItWorks h2 {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: #fdc963;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stepNumber {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fdc963, #ff4b78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.step p {
+  font-size: 14px;
+  color: #ccc;
+  margin: 0;
+}
+
+.step strong {
+  color: #00cca8;
+}
+
+/* Referred Users */
+.referredUsers {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.referredUsers h2 {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: #fdc963;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 30px;
+  color: #888;
+}
+
+.usersList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.userCard {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.username {
+  font-weight: bold;
+  color: #fff;
+}
+
+.joinDate {
+  font-size: 12px;
+  color: #888;
+}
+
+.userStats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.tasksCount {
+  font-size: 12px;
+  color: #ccc;
+}
+
+.bonusStatus {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #888;
+}
+
+.bonusStatus.eligible {
+  background: rgba(0, 204, 168, 0.2);
+  color: #00cca8;
+}

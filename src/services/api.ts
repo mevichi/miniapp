@@ -497,3 +497,85 @@ export const getLeaderboard = async (token: string, limit: number = 10, offset: 
     throw error;
   }
 };
+
+/**
+ * Get or create user's referral code
+ * Endpoint: POST /api/referral/code
+ */
+export const getReferralCode = async (token: string, userId: number) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/referral/code`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ userId }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to get referral code: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    // Expected: { referralCode, referralLink, referralCount, totalReferralEarnings }
+    return data;
+  } catch (error) {
+    console.error('Get referral code error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Apply a referral code when joining
+ * Endpoint: POST /api/referral/apply
+ */
+export const applyReferralCode = async (token: string, userId: number, referralCode: string) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/referral/apply`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ userId, referralCode }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to apply referral code');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Apply referral code error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get user's referral stats and list of referred users
+ * Endpoint: GET /api/referral/stats/:userId
+ */
+export const getReferralStats = async (token: string, userId: number) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/referral/stats/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to get referral stats: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    // Expected: { referralCode, referralLink, referralCount, totalReferralEarnings, pendingBonuses, referredUsers: [...] }
+    return data;
+  } catch (error) {
+    console.error('Get referral stats error:', error);
+    throw error;
+  }
+};

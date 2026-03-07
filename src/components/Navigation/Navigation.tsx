@@ -49,6 +49,15 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
       </button>
 
       <button
+        className={`${styles.navItem} ${currentPage === 'referral' ? styles.active : ''}`}
+        onClick={() => onNavigate('referral')}
+        title="Referral"
+      >
+        <span className={styles.icon}>🎁</span>
+        <span className={styles.label}>Refer</span>
+      </button>
+
+      <button
         className={`${styles.navItem} ${currentPage === 'profile' ? styles.active : ''}`}
         onClick={() => onNavigate('profile')}
         title="Profile"
