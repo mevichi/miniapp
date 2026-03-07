@@ -1,141 +1,191 @@
-# Telegram Mini Apps Next.js Template
+# 🎰 Telegram Mini App - Gold Rush
 
-This template demonstrates how developers can implement a web application on the
-Telegram Mini Apps platform using the following technologies and libraries:
+A Telegram mini app where users can spin wheels, watch ads to earn coins, complete tasks, and invite friends to earn rewards.
 
-- [Next.js](https://nextjs.org/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [TON Connect](https://docs.ton.org/develop/dapps/ton-connect/overview)
-- [@telegram-apps SDK](https://docs.telegram-mini-apps.com/packages/telegram-apps-sdk/2-x)
-- [Telegram UI](https://github.com/Telegram-Mini-Apps/TelegramUI)
-
-> The template was created using [pnpm](https://pnpm.io/). Therefore, it is
-> required to use it for this project as well. Using other package managers, you
-> will receive a corresponding error.
-
-## Install Dependencies
-
-If you have just cloned this template, you should install the project
-dependencies using the command:
-
-```Bash
-pnpm install
-```
-
-## Scripts
-
-This project contains the following scripts:
-
-- `dev`. Runs the application in development mode.
-- `dev:https`. Runs the application in development mode using self-signed SSL
-  certificate.
-- `build`. Builds the application for production.
-- `start`. Starts the Next.js server in production mode.
-- `lint`. Runs [eslint](https://eslint.org/) to ensure the code quality meets
-  the required
-  standards.
-
-To run a script, use the `pnpm run` command:
-
-```Bash
-pnpm run {script}
-# Example: pnpm run build
-```
-
-## Create Bot and Mini App
-
-Before you start, make sure you have already created a Telegram Bot. Here is
-a [comprehensive guide](https://docs.telegram-mini-apps.com/platform/creating-new-app)
-on how to do it.
-
-## Run
-
-Although Mini Apps are designed to be opened
-within [Telegram applications](https://docs.telegram-mini-apps.com/platform/about#supported-applications),
-you can still develop and test them outside of Telegram during the development
-process.
-
-To run the application in the development mode, use the `dev` script:
+## 🚀 Quick Start
 
 ```bash
+# Install dependencies
+pnpm install
+
+# Run in development
 pnpm run dev
 ```
 
-After this, you will see a similar message in your terminal:
+The app runs on `http://localhost:3000` (or next available port).
 
-```bash
-▲ Next.js 14.2.3
-- Local:        http://localhost:3000
+---
 
-✓ Starting...
-✓ Ready in 2.9s
+## ✨ Features
+
+### 🎡 Spin the Wheel
+- Interactive spinning wheel game
+- Win coins (1, 2, 5, 10, 20, 50) or "Nothing"
+- Earn 1 diamond per spin
+- Uses weighted probabilities (1 is most common, 50 is rare)
+
+### 📺 Watch Ads
+- Earn keys by watching advertisements
+- Complete ad milestones to earn bonus coins
+- Daily rewards and special tasks
+
+### 🎮 Tasks & Missions
+- **Subscription Tasks**: Join Telegram channels/groups
+- **Launch Bot Tasks**: Launch Telegram bots (@username or t.me links)
+- **Visit Website Tasks**: Visit external URLs
+- Create paid tasks for other users to complete
+- Earn TON cryptocurrency for task completions
+
+### 💰 Wallet Management
+- Connect TON wallet (TonConnect)
+- Withdraw coins to wallet
+- Transaction history tracking
+- Minimum/maximum withdrawal limits
+
+### 🎁 Referral System
+- Unique referral codes for each user
+- Share via Telegram
+- **Referral Rewards:**
+  - Referred user: 50 coins + 1 key (instant on signup)
+  - Referrer: 100 coins + 1 key (after referral completes 3 tasks)
+  - Referrer: 20% ongoing of all coins the referred user earns
+
+### 🏆 Leaderboard
+- Top users by balance
+- Individual user rankings
+
+### 📊 User Profile
+- Balance, keys, and diamonds tracking
+- Spin statistics
+- Wallet connection status
+- Achievement badges
+
+---
+
+## 📱 Pages
+
+| Page | Route | Description |
+|------|-------|-------------|
+| Home | `/` | Main dashboard with stats |
+| Ads | `/ads` | Watch ads to earn keys |
+| Tasks | `/tasks` | Browse and complete tasks |
+| Wallet | `/wallet` | Manage TON wallet |
+| Profile | `/profile` | User stats and settings |
+| Wheel | `/wheel` | Spin the wheel game |
+| Treasury | `/treasury` | Open treasure boxes |
+| Referral | `/referral` | Invite friends and earn |
+
+---
+
+## 🔌 API Endpoints
+
+### Frontend Integration
+All API calls go through `src/services/api.ts` to the backend at `https://miniapp-backend-g0k3.onrender.com`
+
+### Authentication
+- `verifyUser()` - Verify Telegram user and get JWT token
+- Accepts referral code on signup
+
+### User
+- `getUserProfile()` - Fetch user profile and stats
+- `updateUserProfile()` - Update username
+
+### Tasks
+- `getTasks()` - Get available tasks
+- `completeTask()` - Complete a task and earn rewards
+
+### Wheel
+- `spinWheel()` - Record a wheel spin result
+
+### Wallet
+- `connectWallet()` - Connect TON wallet
+- `withdrawCoins()` - Withdraw coins
+- `getWithdrawals()` - Get withdrawal history
+
+### Referral
+- `getReferralCode()` - Get user's referral code
+- `applyReferralCode()` - Apply referral code on signup
+- `getReferralStats()` - Get referral stats and referred users
+
+### Leaderboard
+- `getLeaderboard()` - Get top users
+
+---
+
+## 🛠 Tech Stack
+
+- **Framework**: Next.js 16
+- **Language**: TypeScript
+- **Styling**: CSS Modules
+- **Telegram**: @tma.js/sdk-react
+- **Wallet**: TonConnect UI
+- **State**: React Context
+
+---
+
+## 📁 Project Structure
+
+```
+miniapp-frontend/
+├── src/
+│   ├── app/                    # Next.js app router
+│   │   ├── page.tsx            # Home page
+│   │   └── ...
+│   ├── components/             # React components
+│   │   ├── HomePage/           # Dashboard
+│   │   ├── AdsPage/            # Ad watching
+│   │   ├── TasksPage/          # Task listing & creation
+│   │   ├── WalletPage/         # Wallet management
+│   │   ├── ProfilePage/        # User profile
+│   │   ├── WheelPage/          # Spin wheel
+│   │   ├── TreasuryPage/       # Treasure boxes
+│   │   ├── ReferralPage/       # Referral system
+│   │   ├── Navigation/         # Bottom nav
+│   │   └── ...
+│   ├── context/
+│   │   └── AppContext.tsx      # Global state
+│   ├── services/
+│   │   └── api.ts              # API client
+│   └── utils/
+│       ├── types.ts            # TypeScript types
+│       └── devMode.ts          # Dev utilities
+├── public/
+├── package.json
+└── README.md
 ```
 
-To view the application, you need to open the `Local`
-link (`http://localhost:3000` in this example) in your browser.
+---
 
-It is important to note that some libraries in this template, such as
-`@telegram-apps/sdk`, are not intended for use outside of Telegram.
+## 🎨 Design System
 
-Nevertheless, they appear to function properly. This is because the
-`src/hooks/useTelegramMock.ts` file, which is imported in the application's
-`Root` component, employs the `mockTelegramEnv` function to simulate the
-Telegram environment. This trick convinces the application that it is
-running in a Telegram-based environment. Therefore, be cautious not to use this
-function in production mode unless you fully understand its implications.
+### Color Palette
+- **Primary**: Blue (#3b82f6 → #60a5fa)
+- **Success**: Green (#10b981 → #34d399)
+- **Accent**: Amber (#f59e0b → #fbbf24)
+- **Background**: Dark slate (#1e293b)
 
-### Run Inside Telegram
+### Components
+- Gradient backgrounds on cards
+- Slide animations on page load
+- Mobile-optimized bottom navigation
+- Consistent border-radius (12-20px)
 
-Although it is possible to run the application outside of Telegram, it is
-recommended to develop it within Telegram for the most accurate representation
-of its real-world functionality.
+---
 
-To run the application inside Telegram, [@BotFather](https://t.me/botfather)
-requires an HTTPS link.
+## 🔧 Configuration
 
-This template already provides a solution.
-
-To retrieve a link with the HTTPS protocol, consider using the `dev:https`
-script:
-
-```bash
-$ pnpm run dev:https
-
-▲ Next.js 14.2.3
-- Local:        https://localhost:3000
-
-✓ Starting...
-✓ Ready in 2.4s
+### Environment Variables
+```env
+NEXT_PUBLIC_ENV=dev  # Use mock data
 ```
 
-Visiting the `Local` link (`https://localhost:3000` in this example) in your
-browser, you will see the following warning:
+### API Base URL
+Update in `src/services/api.ts`:
+- Development: `http://localhost:3000`
+- Production: `https://miniapp-backend-g0k3.onrender.com`
 
-![SSL Warning](assets/ssl-warning.png)
+---
 
-This browser warning is normal and can be safely ignored as long as the site is
-secure. Click the `Proceed to localhost (unsafe)` button to continue and view
-the application.
+## 📄 License
 
-Once the application is displayed correctly, submit the
-link `https://127.0.0.1:3000` (`https://localhost:3000` is considered as invalid
-by BotFather) as the Mini App link to [@BotFather](https://t.me/botfather).
-Then, navigate to [https://web.telegram.org/k/](https://web.telegram.org/k/),
-find your bot, and launch the Telegram Mini App. This approach provides the full
-development experience.
-
-## Deploy
-
-The easiest way to deploy your Next.js app is to use
-the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
-from the creators of Next.js.
-
-Check out
-the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for
-more details.
-
-## Useful Links
-
-- [Platform documentation](https://docs.telegram-mini-apps.com/)
-- [@telegram-apps/sdk-react documentation](https://docs.telegram-mini-apps.com/packages/telegram-apps-sdk-react)
-- [Telegram developers community chat](https://t.me/devs)
+MIT
