@@ -28,6 +28,30 @@ export function ProfilePage(props: { onNavigate?: (page: PageType) => void }) {
         </div>
       </div>
 
+      {/* Daily Login Streak */}
+      <div className={styles.streakCard}>
+        <div className={styles.streakHeader}>
+          <span className={styles.streakIcon}>🔥</span>
+          <span className={styles.streakTitle}>Daily Login Streak</span>
+        </div>
+        <div className={styles.streakStats}>
+          <div className={styles.streakCurrent}>
+            <span className={styles.streakNumber}>{user?.currentStreak || 0}</span>
+            <span className={styles.streakLabel}>Current Streak</span>
+          </div>
+          <div className={styles.streakDivider}></div>
+          <div className={styles.streakBest}>
+            <span className={styles.streakNumber}>{user?.longestStreak || 0}</span>
+            <span className={styles.streakLabel}>Best Streak</span>
+          </div>
+        </div>
+        {user?.streakBonus && (
+          <div className={styles.streakReward}>
+            🎉 +{user.streakBonus.coins} coins, +{user.streakBonus.keys} keys! Day {user.streakBonus.newStreak}
+          </div>
+        )}
+      </div>
+
       {/* Referral Button - directly below username */}
       <div className={styles.section}>
         <button

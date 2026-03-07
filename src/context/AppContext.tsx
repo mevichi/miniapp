@@ -11,6 +11,13 @@ interface User {
   totalDiamonds: number;
   totalSpins: number;
   walletAddress?: string;
+  currentStreak?: number;
+  longestStreak?: number;
+  streakBonus?: {
+    coins: number;
+    keys: number;
+    newStreak: number;
+  };
 }
 
 interface AppContextType {
@@ -61,6 +68,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           totalKeys: response.totalKeys,
           totalDiamonds: response.totalDiamonds || 0,
           totalSpins: 0,
+          currentStreak: response.currentStreak || 0,
+          longestStreak: response.longestStreak || 0,
+          streakBonus: response.streakBonus,
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Login failed';
