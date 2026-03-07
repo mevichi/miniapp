@@ -37,6 +37,38 @@ const COMPLETION_OPTIONS = [
   { users: 500, ton: 1.0 },
 ];
 
+// Validate URL - accepts regular URLs, Telegram @username, or t.me deep links
+const isValidTaskUrl = (url: string, taskType: TaskType): boolean => {
+  if (!url.trim()) return false;
+  
+  // For launch_bot, accept Telegram @username or t.me links
+  if (taskType === 'launch_bot') {
+    // Match @username (letters, numbers, underscores)
+    const usernameRegex = /^@[a-zA-Z][a-zA-Z0-9_]{3,30}$/;
+    // Match t.me/username deep links
+    const tmeRegex = /^https?:\/\/t\.me\/[a-zA-Z][a-zA-Z0-9_]{3,30}$/i;
+    // Match t.me/joinchat/...
+    const joinchatRegex = /^https?:\/\/t\.me\/joinchat\/[a-zA-Z0-9_-]+$/i;
+    
+    return usernameRegex.test(url.trim()) || tmeRegex.test(url.trim()) || joinchatRegex.test(url.trim());
+  }
+  
+  // For subscription, accept Telegram groups/channels
+  if (taskType === 'subscription') {
+    const telegramRegex = /^https?:\/\/t\.me\/[a-zA-Z][a-zA-Z0-9_]{3,30}$/i;
+    const joinchatRegex = /^https?:\/\/t\.me\/joinchat\/[a-zA-Z0-9_-]+$/i;
+    return telegramRegex.test(url.trim()) || joinchatRegex.test(url.trim());
+  }
+  
+  // For visit_website, accept regular URLs
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export function TasksPage({ onNavigate }: TasksPageProps) {
   const { user, token } = useApp();
   const [tonConnectUI, setOptions] = useTonConnectUI();
@@ -107,8 +139,13 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!url.trim()) {
-      setCreateMessage({ type: 'error', text: 'Please enter a valid URL' });
+    if (!isValidTaskUrl(url, taskType)) {
+      setCreateMessage({ 
+        type: 'error', 
+        text: taskType === 'launch_bot' 
+          ? 'Please enter @username or t.me/bot link' 
+          : 'Please enter a valid URL' 
+      });
       return;
     }
 
@@ -471,8 +508,8 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
               <div className={styles.formGroup}>
                 <label className={styles.label}>URL</label>
                 <input
-                  type="url"
-                  placeholder="https://..."
+                  type="text"
+                  placeholder={taskType === 'launch_bot' ? '@botname or t.me/bot' : 'https://...'}
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   className={styles.input}
@@ -547,7 +584,7 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
                 <button
                   type="submit"
                   className={styles.submitButton}
-                  disabled={loadingCreate || !url.trim() || !description.trim()}
+                  disabled={loadingCreate || !isValidTaskUrl(url, taskType) || !description.trim()}
                 >
                   {loadingCreate ? '⏳ Creating...' : '✨ Create Task & Pay TON'}
                 </button>
