@@ -98,7 +98,7 @@ export function ReferralPage({ onNavigate }: ReferralPageProps) {
     <div className={styles.container}>
       {/* Header */}
       <header className={styles.header}>
-        <h1>🎁 Referral Program</h1>
+        <h1 className={styles.title}>🎁 Referral Program</h1>
         <p className={styles.subtitle}>Invite friends and earn rewards!</p>
       </header>
 
