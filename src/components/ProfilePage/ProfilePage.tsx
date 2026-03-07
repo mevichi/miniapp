@@ -28,6 +28,17 @@ export function ProfilePage(props: { onNavigate?: (page: PageType) => void }) {
         </div>
       </div>
 
+      {/* Referral Button - directly below username */}
+      <div className={styles.section}>
+        <button
+          className={styles.referralButton}
+          onClick={() => props.onNavigate?.('referral')}
+        >
+          <span>🎁 Invite Friends & Earn</span>
+          <span>→</span>
+        </button>
+      </div>
+
       {/* Stats Section */}
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>📊 Statistics</h3>
@@ -65,17 +76,6 @@ export function ProfilePage(props: { onNavigate?: (page: PageType) => void }) {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Referral Link */}
-      <div className={styles.section}>
-        <button
-          className={styles.walletLink}
-          onClick={() => props.onNavigate?.('referral')}
-        >
-          <span>🎁 Invite Friends & Earn</span>
-          <span>→</span>
-        </button>
       </div>
 
       {/* Wallet Link */}
