@@ -5,7 +5,7 @@ import styles from './TasksPage.module.css';
 import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
 import { CHAIN, TonConnectButton, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
-import { beginCell, Cell } from '@ton/core';
+import { buildComment, parseTxHash } from '@/utils/ton-helpers';
 import { API_BASE_URL } from '@/services/api';
 
 interface TasksPageProps {
@@ -251,15 +251,6 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
     }
   };
 
-  function buildComment(text: string) {
-    return beginCell()
-      .storeUint(0, 32) // comment opcode
-      .storeStringTail(text)
-      .endCell()
-      .toBoc()
-      .toString("base64");
-  }
-
   // Send payment using TonConnect wallet (if available)
   const sendPaymentWithWallet = async () => {
     if (!paymentRequest || !paymentPendingTaskId) return;
@@ -282,10 +273,10 @@ export function TasksPage({ onNavigate }: TasksPageProps) {
         let resp = await tonConnectUI.sendTransaction({
           validUntil: Math.floor(Date.now() / 1000) + 300,
           network: CHAIN.TESTNET,
-          messages: [{ address: to, amount: amountNano.toString(), payload: buildComment("Coinly 🚀") }],
+          messages: [{ address: to, amount: amountNano.toString(), payload: await buildComment("Coinly 🚀") }],
       
         });
-        txHash = Cell.fromBase64(resp.boc).hash().toString("hex");
+        txHash = await parseTxHash(resp.boc);
 
       } catch (e) { console.log(e); }
       // if (typeof (wallet as any).sendTransaction === 'function') {

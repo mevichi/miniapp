@@ -5,7 +5,7 @@
 
 import { isDev, getMockDevUserResponse } from '@/utils/devMode';
 
-const API_BASE_URL = 'https://miniapp-backend-g0k3.onrender.com';
+export const API_BASE_URL = 'https://miniapp-backend-g0k3.onrender.com';
 
 /**
  * Helper to determine if we should use mock responses
