@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import styles from './AdsPage.module.css';
 import { useApp } from '@/context/AppContext';
 import { PageType } from '@/utils/types';
 import * as api from '@/services/api';
+import { isAdsGramAvailable } from '@/components/AdsGramTask/AdsGramTask';
 
 interface Task {
   taskId: string;
@@ -24,7 +25,7 @@ interface AdsPageProps {
 }
 
 export function AdsPage({ onNavigate }: AdsPageProps) {
-  const { user, token, addKeys, addDiamonds } = useApp();
+  const { user, token, addKeys, addDiamonds, updateBalance } = useApp();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [watchingAd, setWatchingAd] = useState<string | null>(null);
@@ -132,11 +133,26 @@ export function AdsPage({ onNavigate }: AdsPageProps) {
     }
   };
 
+  const [adsGramAvailable, setAdsGramAvailable] = useState(false);
+
+  // Check if AdsGram is available (real ad provider)
+  useEffect(() => {
+    setAdsGramAvailable(isAdsGramAvailable());
+  }, []);
+
   const watchAd = async (taskId: string) => {
     setWatchingAd(taskId);
     setAdProgress(0);
 
-    // Simulate watching a 5-second ad
+    // If AdsGram is available, the <adsgram-task> component handles the ad.
+    // The reward event will call handleAdsGramReward.
+    // Otherwise, fall back to simulated ad.
+    if (adsGramAvailable) {
+      // AdsGram handles the flow - the reward callback will complete the task
+      return;
+    }
+
+    // Fallback: Simulate watching a 5-second ad
     const interval = setInterval(() => {
       setAdProgress((prev) => {
         if (prev >= 100) {
@@ -153,6 +169,33 @@ export function AdsPage({ onNavigate }: AdsPageProps) {
       setAdProgress(100);
     }, 5000);
   };
+
+  // Handle reward from AdsGram real ad
+  const handleAdsGramReward = useCallback(async (blockId: string) => {
+    if (!token) return;
+
+    try {
+      const result = await api.recordAdView(token, 'adsgram', blockId);
+      // Update local user state
+      addKeys(result.keysEarned);
+      updateBalance(result.coinsEarned);
+
+      // Show reward notification
+      setRewardMessage({
+        show: true,
+        keysEarned: result.keysEarned,
+        diamondsEarned: 0,
+      });
+      setTimeout(() => {
+        setRewardMessage({ show: false, keysEarned: 0, diamondsEarned: 0 });
+      }, 3000);
+
+      // Refresh task list
+      fetchTasks();
+    } catch (error) {
+      console.error('Failed to record AdsGram reward:', error);
+    }
+  }, [token, addKeys, updateBalance, fetchTasks]);
 
   const completeTask = async (taskId: string) => {
     if (!token) return;

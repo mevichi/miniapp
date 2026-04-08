@@ -19,6 +19,10 @@ export default async function RootLayout({ children }: PropsWithChildren) {
 
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        {/* AdsGram SDK for Telegram Mini App ad integration */}
+        <script src="https://sad.adsgram.ai/js/sad.min.js" async />
+      </head>
       <body>
         <I18nProvider>
           <Root>{children}</Root>

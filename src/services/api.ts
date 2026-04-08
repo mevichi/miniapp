@@ -579,3 +579,34 @@ export const getReferralStats = async (token: string, userId: number) => {
     throw error;
   }
 };
+
+/**
+ * Record a completed ad view and credit the user
+ */
+export const recordAdView = async (token: string, provider: string = 'adsgram', blockId?: string): Promise<{
+  success: boolean;
+  coinsEarned: number;
+  keysEarned: number;
+  newBalance: number;
+  totalKeys: number;
+}> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/ad-views/record`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ provider, blockId }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to record ad view: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Record ad view error:', error);
+    throw error;
+  }
+};
