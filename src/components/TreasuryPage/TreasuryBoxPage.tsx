@@ -5,9 +5,10 @@ import { useApp } from '@/context/AppContext';
 import { TreasuryBox, type TreasuryReward } from './TreasuryBox';
 import styles from './TreasuryBoxPage.module.css';
 import { PageType } from '@/utils/types';
+import { API_BASE_URL } from '@/services/api';
 
 const KEYS_COST = 5;
-const API_ENDPOINT = 'https://api.solfren.dev/api/treasury/open';
+const API_ENDPOINT = `${API_BASE_URL}/api/treasury/open`;
 
 interface TreasuryState {
   isOpening: boolean;

@@ -5,6 +5,7 @@ import { useApp } from '@/context/AppContext';
 import { CustomWheel } from './Wheel';
 import styles from './WheelPage.module.css';
 import { PageType } from '@/utils/types';
+import { API_BASE_URL } from '@/services/api';
 
 // Wheel segments with weights
 const WHEEL_SEGMENTS = [
@@ -18,7 +19,7 @@ const WHEEL_SEGMENTS = [
 ];
 
 const KEYS_PER_SPIN = 1;
-const API_ENDPOINT = 'https://api.solfren.dev/api/wheel/spin';
+const API_ENDPOINT = `${API_BASE_URL}/api/wheel/spin`;
 
 // Types
 interface WheelState {
