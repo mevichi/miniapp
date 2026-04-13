@@ -1,21 +1,44 @@
-//use server is required
-'use server';
-
-import { cookies } from 'next/headers';
+'use client';
 
 import { defaultLocale } from './config';
 import type { Locale } from './types';
 
-// In this example the locale is read from a cookie. You could alternatively
-// also read it from a database, backend service, or any other source.
 const COOKIE_NAME = 'NEXT_LOCALE';
+const STORAGE_KEY = 'coinly_locale';
 
-const getLocale = async () => {
-  return (await cookies()).get(COOKIE_NAME)?.value || defaultLocale;
+/**
+ * Get the current locale from localStorage (client-side only).
+ * Falls back to browser language or default.
+ */
+export const getLocale = (): Locale => {
+  if (typeof window === 'undefined') return defaultLocale as Locale;
+
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) return stored as Locale;
+
+    // Try to match browser language
+    const browserLang = navigator.language.split('-')[0];
+    if (browserLang === 'ru') return 'ru';
+  } catch {
+    // Ignore storage errors
+  }
+
+  return defaultLocale as Locale;
 };
 
-const setLocale = async (locale?: string) => {
-  (await cookies()).set(COOKIE_NAME, (locale as Locale) || defaultLocale);
-};
+/**
+ * Set the current locale in localStorage (client-side only).
+ */
+export const setLocale = (locale?: string): void => {
+  if (typeof window === 'undefined') return;
 
-export { getLocale, setLocale };
+  try {
+    const resolved = (locale || defaultLocale) as Locale;
+    localStorage.setItem(STORAGE_KEY, resolved);
+    // Also set cookie for any server middleware that might read it
+    document.cookie = `${COOKIE_NAME}=${resolved};path=/;max-age=31536000`;
+  } catch {
+    // Ignore storage errors
+  }
+};

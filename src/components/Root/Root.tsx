@@ -13,7 +13,7 @@ import { AppRoot } from '@telegram-apps/telegram-ui';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ErrorPage } from '@/components/ErrorPage';
 import { useDidMount } from '@/hooks/useDidMount';
-import { setLocale } from '@/core/i18n/locale';
+import { useI18n } from '@/core/i18n/provider';
 
 import './styles.css';
 
@@ -22,11 +22,14 @@ function RootInner({ children }: PropsWithChildren) {
 
   const isDark = useSignal(miniApp.isDark);
   const initDataUser = useSignal(initData.user);
+  const { changeLocale } = useI18n();
 
-  // Set the user locale.
+  // Set the user locale based on Telegram initData.
   useEffect(() => {
-    initDataUser && setLocale(initDataUser.language_code);
-  }, [initDataUser]);
+    if (initDataUser?.language_code) {
+      changeLocale(initDataUser.language_code as any);
+    }
+  }, [initDataUser, changeLocale]);
 
   return (
     <TonConnectUIProvider manifestUrl="https://beautiful-crostata-9d48e7.netlify.app/tonconnect-manifest.json">

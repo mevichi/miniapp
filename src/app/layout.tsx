@@ -1,6 +1,5 @@
 import type { PropsWithChildren } from 'react';
-import type { Metadata } from 'next';
-import { getLocale } from 'next-intl/server';
+import type { Metadata, Viewport } from 'next';
 
 import { Root } from '@/components/Root/Root';
 import { I18nProvider } from '@/core/i18n/provider';
@@ -14,11 +13,16 @@ export const metadata: Metadata = {
   description: 'Coinly: Complete tasks, spin to win, and withdraw to your TON wallet. Earn coins and diamonds daily!',
 };
 
-export default async function RootLayout({ children }: PropsWithChildren) {
-  const locale = await getLocale();
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
+export default function RootLayout({ children }: PropsWithChildren) {
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* AdsGram SDK for Telegram Mini App ad integration */}
         <script src="https://sad.adsgram.ai/js/sad.min.js" async />
