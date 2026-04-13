@@ -21,14 +21,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
-      - run: npm ci
+      - run: npm install
       - run: npm run build
         env:
           NEXT_PUBLIC_API_URL: https://miniapp-backend-g0k3.onrender.com
           NEXT_PUBLIC_BOT_USERNAME: "@miniAppTest1599_bot"
           NEXT_PUBLIC_ENV: production
+          DEPLOY_TARGET: github-pages
+      - name: Add .nojekyll
+        run: touch out/.nojekyll
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
