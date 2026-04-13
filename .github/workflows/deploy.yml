@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npm run build
         env:
           NEXT_PUBLIC_API_URL: https://miniapp-backend-g0k3.onrender.com
