@@ -186,6 +186,22 @@ Update in `src/services/api.ts`:
 
 ---
 
+## 🔄 CI/CD Pipeline
+
+GitHub Actions workflows run automatically on push and PR to `master`:
+
+| Workflow | File | Trigger | Description |
+|----------|------|---------|-------------|
+| **Frontend E2E Tests** | `.github/workflows/test.yml` | push/PR to master | Playwright E2E tests against dev server with auto-login |
+| **Deploy to GitHub Pages** | `.github/workflows/deploy.yml` | push to master | Runs E2E tests first, then builds and deploys to GitHub Pages |
+
+### Key details
+- E2E tests run with `NEXT_PUBLIC_ENV=dev` for auto-login (no Telegram context needed)
+- Deploy is gated on test success — a failing test blocks deployment
+- Test results are uploaded as artifacts on failure for debugging
+
+---
+
 ## 📄 License
 
 MIT
