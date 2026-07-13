@@ -45,7 +45,7 @@ jobs:
       - run: npm install --legacy-peer-deps
       - run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://cleanup-player-organization-relevant.trycloudflare.com' }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://miniapp-backend-g0k3.onrender.com' }}
           NEXT_PUBLIC_BOT_USERNAME: "@miniAppTest1599_bot"
           NEXT_PUBLIC_ENV: production
           DEPLOY_TARGET: github-pages
