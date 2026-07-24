@@ -1,0 +1,1 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,58298,t=>{"use strict";let e=t.i(64040).ErrorPage;t.s(["default",0,e])}]);
