@@ -3,6 +3,6 @@
 4:I[21653,["/_next/static/chunks/9e450b80b4edfb9c.js","/_next/static/chunks/dc7f03eb0325faff.js"],"MetadataBoundary"]
 5:"$Sreact.suspense"
 7:I[69253,["/_next/static/chunks/9e450b80b4edfb9c.js","/_next/static/chunks/dc7f03eb0325faff.js"],"IconMark"]
-0:{"buildId":"-_NFWu3yj2sBRByn4tKiT","rsc":["$","$1","h",{"children":[["$","meta",null,{"name":"robots","content":"noindex"}],["$","$L2",null,{"children":"$@3"}],["$","div",null,{"hidden":true,"children":["$","$L4",null,{"children":["$","$5",null,{"name":"Next.Metadata","children":"$@6"}]}]}],null]}],"loading":null,"isPartial":false}
+0:{"buildId":"9KFxUI52p0I-cXTTORigX","rsc":["$","$1","h",{"children":[["$","meta",null,{"name":"robots","content":"noindex"}],["$","$L2",null,{"children":"$@3"}],["$","div",null,{"hidden":true,"children":["$","$L4",null,{"children":["$","$5",null,{"name":"Next.Metadata","children":"$@6"}]}]}],null]}],"loading":null,"isPartial":false}
 3:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"}]]
 6:[["$","title","0",{"children":"Coinly - Earn Coins & Win Rewards"}],["$","meta","1",{"name":"description","content":"Coinly: Complete tasks, spin to win, and withdraw to your TON wallet. Earn coins and diamonds daily!"}],["$","link","2",{"rel":"icon","href":"/favicon.ico?favicon.0b3bf435.ico","sizes":"256x256","type":"image/x-icon"}],["$","$L7","3",{}]]
